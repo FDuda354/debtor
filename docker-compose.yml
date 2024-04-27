@@ -1,0 +1,42 @@
+services:
+  db:
+    container_name: fullstack-postgres
+    image: postgres:15.1
+    environment:
+      POSTGRES_USER: filip
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dudios
+      PGDATA: /data/postgres
+    volumes:
+      - fullstack-postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - fullstack-postgres
+    restart: unless-stopped
+  backend:
+    container_name: backend
+    image: needxmafia/mein-website
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/filip
+      SPRING_DATASOURCE_USERNAME: filip
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: true
+      SPRING_JPA_SHOW_SQL: true
+    ports:
+      - "8088:8080"
+    networks:
+      - fullstack-postgres
+    depends_on:
+      - db
+    restart: unless-stopped
+
+networks:
+  fullstack-postgres:
+    driver: bridge
+
+volumes:
+  fullstack-postgres:

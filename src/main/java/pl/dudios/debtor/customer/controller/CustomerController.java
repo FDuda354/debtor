@@ -1,0 +1,61 @@
+package pl.dudios.debtor.customer.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import pl.dudios.debtor.customer.model.Customer;
+import pl.dudios.debtor.customer.model.CustomerDTO;
+import pl.dudios.debtor.customer.service.CustomerService;
+import pl.dudios.debtor.security.jwt.JwtUtil;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/customers")
+public class CustomerController {
+
+    private final CustomerService customerService;
+    private final JwtUtil jwtUtil;
+
+    @GetMapping()
+    public Page<CustomerDTO> getCustomers(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        return customerService.getCustomers(page, size);
+    }
+
+    @GetMapping("/{id}")
+    public CustomerDTO getCustomer(@PathVariable final Long id) {
+        return customerService.getCustomerById(id);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> addCustomer(@RequestBody CustomerRequest request) {
+        Customer customer = customerService.addCustomer(request);
+        String token = jwtUtil.issueToken(request.email(), customer.getId(), "ROLE_USER");
+
+        return ResponseEntity.ok()
+                .body(token);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteCustomer(@PathVariable final Long id) {
+        customerService.deleteCustomerById(id);
+    }
+
+    @PutMapping("/{id}")
+    public void updateCustomer(
+            @PathVariable final Long id,
+            @RequestBody CustomerRequest request
+    ) {
+        customerService.updateCustomer(id, request);
+    }
+}

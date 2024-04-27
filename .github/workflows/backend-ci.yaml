@@ -100,3 +100,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
       - name: Push docker image
         run: mvn -ntp -B verify jib:build
+

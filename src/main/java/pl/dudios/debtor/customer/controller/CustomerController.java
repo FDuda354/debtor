@@ -42,7 +42,7 @@ public class CustomerController {
     @PostMapping
     public ResponseEntity<?> addCustomer(@RequestBody CustomerRequest request) {
         Customer customer = customerService.addCustomer(request);
-        String token = jwtUtil.issueToken(request.email(), customer.getId(), Role.ROLE_USER.name());
+        String token = jwtUtil.issueToken(request.email(), customer.getId(), customer.getRole().name());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, token)

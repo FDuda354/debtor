@@ -10,6 +10,7 @@ import pl.dudios.debtor.customer.CustomerMapper;
 import pl.dudios.debtor.customer.controller.CustomerRequest;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.CustomerDTO;
+import pl.dudios.debtor.customer.model.Role;
 import pl.dudios.debtor.customer.repository.CustomerDao;
 import pl.dudios.debtor.exception.DuplicateResourceException;
 import pl.dudios.debtor.exception.RequestValidationException;
@@ -52,6 +53,9 @@ public class CustomerService {
                 .email(request.email())
                 .age(request.age())
                 .password(passwordEncoder.encode(request.password()))
+                .role(Role.ROLE_USER)
+                .accountNonLocked(true)
+                .enabled(true) //TODO dorobić
                 .build());
     }
 

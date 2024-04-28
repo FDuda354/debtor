@@ -1,13 +1,7 @@
 package pl.dudios.debtor.customer.model;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -64,11 +58,19 @@ public class Customer implements UserDetails {
     private String password;
     @Column(nullable = false)
     private Integer age;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
+    @Column(nullable = false)
+    private boolean enabled;
+    @Column(nullable = false)
+    private boolean accountNonLocked;
+
 
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override
@@ -88,7 +90,7 @@ public class Customer implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return accountNonLocked;
     }
 
     @Override
@@ -98,6 +100,6 @@ public class Customer implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 }

@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader(AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith(PREFIX)) {
-            log.error(AUTHORIZATION + " header is invalid or empty: {}", authHeader);
+            log.warn(AUTHORIZATION + " header is invalid or empty: {}", authHeader);
             filterChain.doFilter(request, response);
             return;
         }

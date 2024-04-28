@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.dudios.debtor.customer.controller.CustomerRequest;
 import pl.dudios.debtor.customer.model.Customer;
+import pl.dudios.debtor.customer.model.Role;
 import pl.dudios.debtor.customer.repository.CustomerDao;
 
 import java.util.Random;
@@ -42,7 +43,10 @@ public class MeinWebsiteApplication {
                             .name(request.name())
                             .email(request.email())
                             .age(request.age())
+                            .role(Role.ROLE_USER)
                             .password(passwordEncoder.encode(request.password()))
+                            .accountNonLocked(true)
+                            .enabled(true)
                             .build());
 //                System.out.println(
 //                        "('" + firstName + " " + lastName + "', '" + firstName+lastName+uuid+"@gmail.com', " + passwordEncoder.encode("111")+", "+age + "),");

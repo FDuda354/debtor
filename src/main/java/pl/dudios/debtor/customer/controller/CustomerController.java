@@ -2,6 +2,7 @@ package pl.dudios.debtor.customer.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,12 +15,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.CustomerDTO;
+import pl.dudios.debtor.customer.model.Role;
 import pl.dudios.debtor.customer.service.CustomerService;
 import pl.dudios.debtor.security.jwt.JwtUtil;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/customers")
+@RequestMapping("/api/customers")
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -40,9 +42,10 @@ public class CustomerController {
     @PostMapping
     public ResponseEntity<?> addCustomer(@RequestBody CustomerRequest request) {
         Customer customer = customerService.addCustomer(request);
-        String token = jwtUtil.issueToken(request.email(), customer.getId(), "ROLE_USER");
+        String token = jwtUtil.issueToken(request.email(), customer.getId(), Role.ROLE_USER.name());
 
         return ResponseEntity.ok()
+                .header(HttpHeaders.AUTHORIZATION, token)
                 .body(token);
     }
 

@@ -14,7 +14,7 @@ public class CustomerMapper {
                 customer.getName(),
                 customer.getEmail(),
                 customer.getAge(),
-                customer.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList()
+                customer.getRole()
         );
     }
 }

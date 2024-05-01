@@ -2,9 +2,11 @@ package pl.dudios.debtor.customer.model;
 
 public record CustomerDTO(
         Long id,
-        String name,
+        String firstName,
+        String surname,
         String email,
         Integer age,
-        Role role
+        Role role,
+        Gender gender
 ) {
 }

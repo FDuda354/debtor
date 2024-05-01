@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import pl.dudios.debtor.customer.CustomerMapper;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.CustomerDTO;
+import pl.dudios.debtor.security.jwt.JwtUtil;
 import pl.dudios.debtor.security.model.AuthRequest;
 import pl.dudios.debtor.security.model.AuthResponse;
-import pl.dudios.debtor.security.jwt.JwtUtil;
 
 @Slf4j
 @Service

@@ -1,4 +1,5 @@
 package pl.dudios.debtor.utils;
+
 import com.github.slugify.Slugify;
 import org.apache.commons.io.FilenameUtils;
 

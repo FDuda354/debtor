@@ -1,8 +1,15 @@
 package pl.dudios.debtor.customer.controller;
 
+import pl.dudios.debtor.customer.images.model.Image;
+import pl.dudios.debtor.customer.model.Gender;
+
 public record CustomerRequest(
-        String name,
+        String firstName,
+        String surname,
         String email,
         Integer age,
-        String password) {
+        Gender gender,
+        String password,
+        Image profileImage
+) {
 }

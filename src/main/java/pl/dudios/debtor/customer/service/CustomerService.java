@@ -49,10 +49,12 @@ public class CustomerService {
             throw new DuplicateResourceException("Email already taken");
         }
         return customerDao.insertCustomer(Customer.builder()
-                .name(request.name())
+                .firstName(request.firstName())
+                .surname(request.surname())
                 .email(request.email())
                 .age(request.age())
                 .password(passwordEncoder.encode(request.password()))
+                .gender(request.gender())
                 .role(Role.ROLE_USER)
                 .accountNonLocked(true)
                 .enabled(true) //TODO dorobić
@@ -85,8 +87,16 @@ public class CustomerService {
             oldCustomer.setEmail(request.email().trim());
             changed = true;
         }
-        if (request.name() != null && !request.name().isBlank() && !request.name().equals(oldCustomer.getName())) {
-            oldCustomer.setName(request.name().trim());
+        if (request.firstName() != null && !request.firstName().isBlank() && !request.firstName().equals(oldCustomer.getFirstName())) {
+            oldCustomer.setFirstName(request.firstName().trim());
+            changed = true;
+        }
+        if (request.surname() != null && !request.surname().isBlank() && !request.surname().equals(oldCustomer.getSurname())) {
+            oldCustomer.setSurname(request.surname().trim());
+            changed = true;
+        }
+        if (request.gender() != null && !request.gender().equals(oldCustomer.getGender())) {
+            oldCustomer.setGender(request.gender());
             changed = true;
         }
         if (request.age() != null && !request.age().equals(oldCustomer.getAge())) {

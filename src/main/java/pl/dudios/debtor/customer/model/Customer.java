@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import pl.dudios.debtor.customer.images.model.Image;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,7 +23,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(
-        name = "customers",
+        name = "CUSTOMERS",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "customer_email_unique",
@@ -51,7 +52,9 @@ public class Customer implements UserDetails {
 //            columnDefinition = "TEXT", // typ kolumny
 //            updatable = false // nie mozna zmienic wartosci
     )
-    private String name;
+    private String firstName;
+    @Column(nullable = false)
+    private String surname;
     @Column(nullable = false)
     private String email;
     @Column(nullable = false)
@@ -62,11 +65,15 @@ public class Customer implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+    @Column(nullable = false)
     private boolean enabled;
     @Column(nullable = false)
     private boolean accountNonLocked;
-
-
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(unique = true, name = "profile_image")
+    private Image profileImage;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

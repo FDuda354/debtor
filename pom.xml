@@ -10,7 +10,7 @@
     </parent>
     <groupId>pl.dudios</groupId>
     <artifactId>mein-website</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <organization>
         <name>dudios</name>
         <url>https://dudios.pl</url>

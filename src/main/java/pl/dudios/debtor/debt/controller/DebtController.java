@@ -11,7 +11,7 @@ import pl.dudios.debtor.debt.service.DeptService;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/debt")
+@RequestMapping("/api/debt")
 public class DebtController {
 
     private final DeptService deptService;

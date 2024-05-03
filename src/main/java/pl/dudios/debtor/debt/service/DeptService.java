@@ -3,18 +3,23 @@ package pl.dudios.debtor.debt.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.repository.CustomerDao;
+import pl.dudios.debtor.debt.DebtMapper;
 import pl.dudios.debtor.debt.controller.DeptRequest;
 import pl.dudios.debtor.debt.model.Debt;
+import pl.dudios.debtor.debt.model.DebtDTO;
 import pl.dudios.debtor.debt.repo.DeptRepository;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static pl.dudios.debtor.debt.model.DebtStatus.*;
 
@@ -68,13 +73,29 @@ public class DeptService {
         debt.setStatus(ACTIVE);
     }
 
-    public Page<Debt> getDebtsByDebtorId(Long debtorId, int page, int size) {
+    public Page<DebtDTO> getDebtsByDebtorId(Long debtorId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return deptRepository.findAllByDebtorIdAndStatusIs(debtorId, ACTIVE, pageable);
+        Customer debtor = customerDao.getCustomerById(debtorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with Id: " + debtorId + " not found"));
+        Page<Debt> debts = deptRepository.findAllByDebtorAndStatusIs(debtor, ACTIVE, pageable);
+        List<DebtDTO> debtDTOs = debts.getContent()
+                .stream()
+                .map(d -> DebtMapper.mapToDebtDTO(d, false))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(debtDTOs, PageRequest.of(page, size), debts.getTotalElements());
     }
 
-    public Page<Debt> getDebtsByCreditorId(Long creditorId, int page, int size) {
+    public Page<DebtDTO> getDebtsByCreditorId(Long creditorId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return deptRepository.findAllByCreditorIdAndStatusIs(creditorId, ACTIVE, pageable);
+        Customer creditor = customerDao.getCustomerById(creditorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with Id: " + creditorId + " not found"));
+        Page<Debt> debts = deptRepository.findAllByCreditorAndStatusIs(creditor, ACTIVE, pageable);
+        List<DebtDTO> debtDTOs = debts.getContent()
+                .stream()
+                .map(d -> DebtMapper.mapToDebtDTO(d, true))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(debtDTOs, PageRequest.of(page, size), debts.getTotalElements());
     }
 }

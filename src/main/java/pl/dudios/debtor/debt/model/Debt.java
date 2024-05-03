@@ -1,5 +1,6 @@
 package pl.dudios.debtor.debt.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,7 +41,8 @@ public class Debt {
     @ManyToOne
     @JoinColumn(name = "creditor_id", nullable = false)
     private Customer creditor;
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "debt", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "debt", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transaction> transactions;
     private BigDecimal amount;
     private String description;

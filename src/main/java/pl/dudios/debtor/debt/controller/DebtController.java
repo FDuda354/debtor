@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import pl.dudios.debtor.debt.model.Debt;
+import pl.dudios.debtor.customer.model.Customer;
+import pl.dudios.debtor.debt.model.DebtDTO;
 import pl.dudios.debtor.debt.service.DeptService;
 
 @Slf4j
@@ -17,19 +19,19 @@ public class DebtController {
     private final DeptService deptService;
 
     @GetMapping("/debtors")
-    public ResponseEntity<Page<Debt>> getDebtsByDebtorId(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                         @RequestParam(value = "size", defaultValue = "10") int size,
-                                                         @RequestParam(value = "debtorId") Long debtorId) {
+    public ResponseEntity<Page<DebtDTO>> getDebtsByDebtorId(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                            @RequestParam(value = "size", defaultValue = "10") int size,
+                                                            @AuthenticationPrincipal Customer customer) {
 
-        return ResponseEntity.ok(deptService.getDebtsByDebtorId(debtorId, page, size));
+        return ResponseEntity.ok(deptService.getDebtsByDebtorId(customer.getId(), page, size));
     }
 
-    @GetMapping("/creditor")
-    public ResponseEntity<Page<Debt>> getDebtsByCreditorId(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                           @RequestParam(value = "size", defaultValue = "10") int size,
-                                                           @RequestParam(value = "creditorId") Long creditorId) {
+    @GetMapping("/creditors")
+    public ResponseEntity<Page<DebtDTO>> getDebtsByCreditorId(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                              @RequestParam(value = "size", defaultValue = "10") int size,
+                                                              @AuthenticationPrincipal Customer customer) {
 
-        return ResponseEntity.ok(deptService.getDebtsByCreditorId(creditorId, page, size));
+        return ResponseEntity.ok(deptService.getDebtsByCreditorId(customer.getId(), page, size));
     }
 
     @PostMapping

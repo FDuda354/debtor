@@ -17,6 +17,7 @@ import pl.dudios.debtor.debt.repo.DeptRepository;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -97,5 +98,21 @@ public class DeptService {
                 .collect(Collectors.toList());
 
         return new PageImpl<>(debtDTOs, PageRequest.of(page, size), debts.getTotalElements());
+    }
+
+    public BigDecimal getDebtAmountSum(Long debtorId) {
+        return deptRepository.getDebtAmountSum(debtorId);
+    }
+
+    public BigDecimal getCreditorAmountSum(Long creditorId) {
+        return deptRepository.getCreditorAmountSum(creditorId);
+    }
+
+    public Long getDebtCount(Long debtorId) {
+        return deptRepository.countByDebtorId(debtorId);
+    }
+
+    public Long getCreditorCount(Long creditorId) {
+        return deptRepository.countByCreditorId(creditorId);
     }
 }

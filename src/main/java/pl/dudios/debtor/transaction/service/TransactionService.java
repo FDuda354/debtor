@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.model.DebtStatus;
 import pl.dudios.debtor.debt.repo.DeptRepository;
+import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
 import pl.dudios.debtor.files.model.File;
 import pl.dudios.debtor.files.service.FileService;
@@ -34,24 +35,33 @@ public class TransactionService {
         Debt debt = deptRepository.findById(request.debtId())
                 .orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + request.debtId() + " not found"));
 
+        if(request.amount().compareTo(debt.getAmount()) > 0){
+            log.error("Transaction amount is greater than debt amount");
+            throw new RequestValidationException("Transaction amount is greater than debt amount");
+        }
+
+        if (debt.getTransactions() == null) {
+            debt.setTransactions(new ArrayList<>());
+        }
 
         Transaction transaction = Transaction.builder()
                 .debt(debt)
+                .balanceBeforeTransaction(debt.getAmount())
                 .amount(request.amount())
+                .balanceAfterTransaction(debt.getAmount().min(request.amount()))
                 .description(request.description())
                 .paymentDate(LocalDateTime.now())
                 .files(request.files())
                 .build();
 
-        transactionRepository.save(transaction);
-        if (debt.getTransactions() == null) {
-            debt.setTransactions(new ArrayList<>());
-        }
         debt.getTransactions().add(transaction);
+        debt.setAmount(debt.getAmount().min(transaction.getAmount()));
 
         if (debtIsPaid(debt)) {
             debt.setStatus(DebtStatus.FINISHED);
         }
+
+        transactionRepository.save(transaction);
     }
 
     private boolean debtIsPaid(Debt debt) {
@@ -77,8 +87,14 @@ public class TransactionService {
 
     }
 
-    public Page<Transaction> getTransactionByDebtId(Long debtId, int page, int size) {
+    public Page<Transaction> getTransactionsByDebtId(Long debtId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return transactionRepository.findAllByDebtId(debtId, pageable);
+    }
+
+    public Page<Transaction> getTransactionsByCustomerId(Long customerId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<Long> debtIds = deptRepository.findAllDebtIdsByDebtorOrCreditor(customerId);
+        return transactionRepository.findByDebtIdIn(debtIds, pageable);
     }
 }

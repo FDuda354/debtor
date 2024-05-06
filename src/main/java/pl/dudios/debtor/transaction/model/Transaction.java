@@ -1,6 +1,5 @@
 package pl.dudios.debtor.transaction.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,11 +34,12 @@ public class Transaction {
             generator = "transaction_id_sequence"
     )
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "debt_id", nullable = false)
-    @JsonIgnore
     private Debt debt;
     private BigDecimal amount;
+    private BigDecimal balanceBeforeTransaction;
+    private BigDecimal balanceAfterTransaction;
     private String description;
     private LocalDateTime paymentDate;
     @OneToMany(mappedBy = "transaction", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

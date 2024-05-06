@@ -41,8 +41,8 @@ public class Debt {
     @ManyToOne
     @JoinColumn(name = "creditor_id", nullable = false)
     private Customer creditor;
-    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "debt", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Transaction> transactions;
     private BigDecimal amount;
     private String description;

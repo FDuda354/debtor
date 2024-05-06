@@ -18,36 +18,36 @@ public class CustomerController {
     private final CustomerService customerService;
     private final JwtUtil jwtUtil;
 
-    @GetMapping()
-    public Page<CustomerDTO> getCustomers(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
-        return customerService.getCustomers(page, size);
-    }
-
-    @GetMapping("/{id}")
-    public CustomerDTO getCustomer(@PathVariable final Long id) {
-        return customerService.getCustomerById(id);
-    }
-
-    @PostMapping
-    public ResponseEntity<?> addCustomer(@RequestBody CustomerRequest request) {
-        Customer customer = customerService.addCustomer(request);
-        String token = jwtUtil.issueToken(request.email(), customer.getId(), customer.getRole().name());
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.AUTHORIZATION, token)
-                .body(token);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteCustomer(@PathVariable final Long id) {
-        customerService.deleteCustomerById(id);
-    }
-
-    @PutMapping("/{id}")
-    public void updateCustomer(@PathVariable final Long id,
-                               @RequestBody CustomerRequest request) {
-        customerService.updateCustomer(id, request);
-    }
+//    @GetMapping()
+//    public Page<CustomerDTO> getCustomers(
+//            @RequestParam(value = "page", defaultValue = "0") int page,
+//            @RequestParam(value = "size", defaultValue = "10") int size) {
+//        return customerService.getCustomers(page, size);
+//    }
+//
+//    @GetMapping("/{id}")
+//    public CustomerDTO getCustomer(@PathVariable final Long id) {
+//        return customerService.getCustomerById(id);
+//    }
+//
+//    @PostMapping
+//    public ResponseEntity<?> addCustomer(@RequestBody CustomerRequest request) {
+//        Customer customer = customerService.addCustomer(request);
+//        String token = jwtUtil.issueToken(request.email(), customer.getId(), customer.getRole().name());
+//
+//        return ResponseEntity.ok()
+//                .header(HttpHeaders.AUTHORIZATION, token)
+//                .body(token);
+//    }
+//
+//    @DeleteMapping("/{id}")
+//    public void deleteCustomer(@PathVariable final Long id) {
+//        customerService.deleteCustomerById(id);
+//    }
+//
+//    @PutMapping("/{id}")
+//    public void updateCustomer(@PathVariable final Long id,
+//                               @RequestBody CustomerRequest request) {
+//        customerService.updateCustomer(id, request);
+//    }
 }

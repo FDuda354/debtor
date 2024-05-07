@@ -64,7 +64,6 @@ public class Customer implements UserDetails {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Gender gender;
     @Column(nullable = false)

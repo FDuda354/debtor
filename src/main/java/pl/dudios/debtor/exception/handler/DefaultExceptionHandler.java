@@ -7,6 +7,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import pl.dudios.debtor.exception.DuplicateResourceException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
@@ -28,8 +29,14 @@ public class DefaultExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleException(BadCredentialsException e, HttpServletRequest request) {
-        ApiError apiError = new ApiError(request.getRequestURI(), e.getMessage(), HttpStatus.FORBIDDEN.value(), LocalDateTime.now());
+        ApiError apiError = new ApiError(request.getRequestURI(), e.getMessage(), HttpStatus.UNAUTHORIZED.value(), LocalDateTime.now());
         return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ApiError> handleException(DuplicateResourceException e, HttpServletRequest request) {
+        ApiError apiError = new ApiError(request.getRequestURI(), e.getMessage(), HttpStatus.CONFLICT.value(), LocalDateTime.now());
+        return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(Exception.class)

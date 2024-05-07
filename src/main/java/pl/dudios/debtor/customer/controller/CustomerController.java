@@ -30,15 +30,13 @@ public class CustomerController {
 //        return customerService.getCustomerById(id);
 //    }
 //
-//    @PostMapping
-//    public ResponseEntity<?> addCustomer(@RequestBody CustomerRequest request) {
-//        Customer customer = customerService.addCustomer(request);
-//        String token = jwtUtil.issueToken(request.email(), customer.getId(), customer.getRole().name());
-//
-//        return ResponseEntity.ok()
-//                .header(HttpHeaders.AUTHORIZATION, token)
-//                .body(token);
-//    }
+    @PostMapping
+    public ResponseEntity<?> addCustomer(@RequestBody CustomerRequest request) {
+        Customer customer = customerService.addCustomer(request);
+        String token = jwtUtil.issueToken(request.email(), customer.getId(), customer.getRole().name());
+
+        return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, token).build();
+    }
 //
 //    @DeleteMapping("/{id}")
 //    public void deleteCustomer(@PathVariable final Long id) {

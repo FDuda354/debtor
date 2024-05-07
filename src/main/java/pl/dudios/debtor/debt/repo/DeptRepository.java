@@ -19,12 +19,6 @@ public interface DeptRepository extends JpaRepository<Debt, Long> {
 
     Page<Debt> findAllByCreditorAndStatusIs(Customer creditor, DebtStatus status, Pageable pageable);
 
-    @Query(value = "SELECT d.id" +
-            " FROM debts AS d " +
-            "WHERE d.creditor_id = :customerId OR d.debtor_id = :customerId",
-            nativeQuery = true)
-    List<Long> findAllDebtIdsByDebtorOrCreditor(Long customerId);
-
     @Query(value = "SELECT SUM(d.amount)" +
             " FROM debts AS d " +
             "WHERE d.debtor_id = :debtorId",

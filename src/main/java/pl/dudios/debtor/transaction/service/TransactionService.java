@@ -94,7 +94,6 @@ public class TransactionService {
 
     public Page<Transaction> getTransactionsByCustomerId(Long customerId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        List<Long> debtIds = deptRepository.findAllDebtIdsByDebtorOrCreditor(customerId);
-        return transactionRepository.findByDebtIdIn(debtIds, pageable);
+        return transactionRepository.findByCustomerDebtIds(customerId, pageable);
     }
 }

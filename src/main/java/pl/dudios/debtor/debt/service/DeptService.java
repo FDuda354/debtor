@@ -37,6 +37,7 @@ public class DeptService {
                 .orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
     }
 
+
     public Debt addDebt(DeptRequest request) {
         if (request.debtorEmail().equals(request.creditorEmail())) {
             throw new RequestValidationException("debtor mail and creditor email are the same");

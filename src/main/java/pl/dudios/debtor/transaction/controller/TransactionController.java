@@ -28,13 +28,13 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.getTransactionsByCustomerId(customer.getId(), page, size));
     }
 
-//    @GetMapping
-//    public ResponseEntity<Page<Transaction>> getTransactionsByDebtId(@RequestParam(value = "page", defaultValue = "0") int page,
-//                                                                     @RequestParam(value = "size", defaultValue = "10") int size,
-//                                                                     @RequestParam(value = "debtId") Long debtId) {
-//
-//        return ResponseEntity.ok(transactionService.getTransactionsByDebtId(debtId, page, size));
-//    }
+    @GetMapping
+    public ResponseEntity<Page<Transaction>> getTransactionsByDebtId(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                                     @RequestParam(value = "size", defaultValue = "10") int size,
+                                                                     @RequestParam(value = "debtId") Long debtId) {
+
+        return ResponseEntity.ok(transactionService.getTransactionsByDebtId(debtId, page, size));
+    }
 //
 //    @PostMapping
 //    public ResponseEntity<Void> addTransaction(@RequestBody TransactionRequest request) {

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pl.dudios.debtor.customer.model.Customer;
+import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.model.DebtDTO;
 import pl.dudios.debtor.debt.service.DeptService;
 
@@ -19,6 +20,13 @@ import java.math.BigDecimal;
 public class DebtController {
 
     private final DeptService deptService;
+
+    @GetMapping
+    public ResponseEntity<Debt> getDebtById(@RequestParam(value = "debtId") Long debtId) {
+
+        return ResponseEntity.ok(deptService.getDebtById(debtId));
+    }
+
 
     @GetMapping("/debtors")
     public ResponseEntity<Page<DebtDTO>> getDebtsByDebtorId(@RequestParam(value = "page", defaultValue = "0") int page,

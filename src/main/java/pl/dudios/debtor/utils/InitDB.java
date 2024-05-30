@@ -10,7 +10,7 @@ import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.Gender;
 import pl.dudios.debtor.customer.model.Role;
 import pl.dudios.debtor.customer.repository.CustomerDao;
-import pl.dudios.debtor.debt.controller.DeptRequest;
+import pl.dudios.debtor.debt.controller.DebtRequest;
 import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.service.DeptService;
 import pl.dudios.debtor.transaction.controller.TransactionRequest;
@@ -45,11 +45,11 @@ public class InitDB {
                 String lastName = name.lastName();
                 int age = random.nextInt(10, 99);
                 String uuid = UUID.randomUUID().toString().substring(0, 5);
-                CustomerRequest request = new CustomerRequest(firstName, lastName, firstName + lastName + uuid + randomDomen(), age, gender, "1111", null);
+                CustomerRequest request = new CustomerRequest(firstName, lastName, firstName + lastName + uuid + randomDomen(), age, gender, "1111");
                 Customer customer1 = customerDao.insertCustomer(Customer.builder()
                         .firstName(firstName)
                         .surname(lastName)
-                        .email(request.email())
+                        .email(request.email().toLowerCase())
                         .age(request.age())
                         .role(Role.ROLE_USER)
                         .gender(gender)
@@ -65,11 +65,11 @@ public class InitDB {
                 lastName = name.lastName();
                 age = random.nextInt(10, 99);
                 uuid = UUID.randomUUID().toString().substring(0, 5);
-                request = new CustomerRequest(firstName, lastName, firstName + lastName + uuid + randomDomen(), age, gender, "1111", null);
+                request = new CustomerRequest(firstName, lastName, firstName + lastName + uuid + randomDomen(), age, gender, "1111");
                 Customer customer2 = customerDao.insertCustomer(Customer.builder()
                         .firstName(firstName)
                         .surname(lastName)
-                        .email(request.email())
+                        .email(request.email().toLowerCase())
                         .age(request.age())
                         .gender(gender)
                         .role(Role.ROLE_USER)
@@ -83,11 +83,11 @@ public class InitDB {
                 time.plusMonths(random.nextInt(10));
                 time.plusYears(random.nextInt(10));
                 for (int k = 0; k < random.nextInt(20); k++) {
-                    DeptRequest deptRequest = new DeptRequest(customer2.getEmail(), customer1.getEmail(), BigDecimal.valueOf(random.nextInt(100_000) + 30_000), faker.commerce().productName(), time);
-                    DeptRequest deptRequest2 = new DeptRequest(customer1.getEmail(), customer2.getEmail(), BigDecimal.valueOf(random.nextInt(100_000) + 30_000), faker.commerce().productName(), time);
+                    DebtRequest debtRequest = new DebtRequest(customer2.getEmail().toLowerCase(), customer1.getEmail(), BigDecimal.valueOf(random.nextInt(100_000) + 30_000), faker.commerce().productName(), time);
+                    DebtRequest debtRequest2 = new DebtRequest(customer1.getEmail().toLowerCase(), customer2.getEmail(), BigDecimal.valueOf(random.nextInt(100_000) + 30_000), faker.commerce().productName(), time);
 
-                    Debt debt = deptService.addDebt(deptRequest);
-                    Debt debt2 = deptService.addDebt(deptRequest);
+                    Debt debt = deptService.addDebt(debtRequest);
+                    Debt debt2 = deptService.addDebt(debtRequest);
 
                     for (int j = 0; j < random.nextInt(35); j++) {
                         TransactionRequest request1 = new TransactionRequest(debt.getId(), BigDecimal.valueOf(random.nextInt(1000) + 10), "Spłata", null);

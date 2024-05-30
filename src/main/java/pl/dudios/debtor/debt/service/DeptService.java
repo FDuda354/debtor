@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.repository.CustomerDao;
 import pl.dudios.debtor.debt.DebtMapper;
-import pl.dudios.debtor.debt.controller.DeptRequest;
+import pl.dudios.debtor.debt.controller.DebtRequest;
 import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.model.DebtDTO;
 import pl.dudios.debtor.debt.repo.DeptRepository;
@@ -38,14 +38,12 @@ public class DeptService {
     }
 
 
-    public Debt addDebt(DeptRequest request) {
-        if (request.debtorEmail().equals(request.creditorEmail())) {
+    public Debt addDebt(DebtRequest request) {
+        if (request.debtorEmail() == null || request.debtorEmail().equalsIgnoreCase(request.creditorEmail())) {
             throw new RequestValidationException("debtor mail and creditor email are the same");
         }
-        Customer debtor = customerDao.getCustomerByEmail(request.debtorEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Customer with email: " + request.debtorEmail() + " not found"));
-        Customer creditor = customerDao.getCustomerByEmail(request.creditorEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Customer with email: " + request.creditorEmail() + " not found"));
+        Customer debtor = customerDao.getCustomerByEmail(request.debtorEmail().toLowerCase());
+        Customer creditor = customerDao.getCustomerByEmail(request.creditorEmail().toLowerCase());
 
         Debt debt = Debt.builder()
                 .debtor(debtor)

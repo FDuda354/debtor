@@ -1,5 +1,7 @@
 package pl.dudios.debtor.customer.model;
 
+import pl.dudios.debtor.customer.images.model.Image;
+
 public record CustomerDTO(
         Long id,
         String firstName,
@@ -7,6 +9,7 @@ public record CustomerDTO(
         String email,
         Integer age,
         Role role,
-        Gender gender
+        Gender gender,
+        Image prfileImage
 ) {
 }

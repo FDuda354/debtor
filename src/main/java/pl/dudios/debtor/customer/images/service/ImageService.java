@@ -26,11 +26,11 @@ public class ImageService {
     private final ImageRepository imageRepository;
     private final ExistingFileRenameUtils renameUtils;
 
-    public Image uploadImage(MultipartFile cardImage) throws RequestValidationException {
-        String newFileName = SlugifyUtils.slugifyFileName(cardImage.getOriginalFilename());
+    public Image uploadImage(MultipartFile profileImage) throws RequestValidationException {
+        String newFileName = SlugifyUtils.slugifyFileName(profileImage.getOriginalFilename());
         newFileName = renameUtils.renameFileIfExists(newFileName);
 
-        try (InputStream inputStream = cardImage.getInputStream()) {
+        try (InputStream inputStream = profileImage.getInputStream()) {
             Image image = Image.builder()
                     .fileName(newFileName)
                     .content(inputStream.readAllBytes())

@@ -15,7 +15,8 @@ public class CustomerMapper {
                 customer.getEmail(),
                 customer.getAge(),
                 customer.getRole(),
-                customer.getGender()
+                customer.getGender(),
+                customer.getProfileImage()
         );
     }
 }

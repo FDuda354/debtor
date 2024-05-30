@@ -1,13 +1,17 @@
 package pl.dudios.debtor.customer.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import pl.dudios.debtor.customer.CustomerMapper;
 import pl.dudios.debtor.customer.controller.CustomerRequest;
+import pl.dudios.debtor.customer.images.model.Image;
+import pl.dudios.debtor.customer.images.service.ImageService;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.CustomerDTO;
 import pl.dudios.debtor.customer.model.Role;
@@ -24,18 +28,19 @@ import java.util.stream.Collectors;
 public class CustomerService {
 
     private final CustomerDao customerDao;
+    private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
 
-    public Page<CustomerDTO> getCustomers(int page, int size) {
-        Page<Customer> customers = customerDao.getCustomers(page, size);
-        List<CustomerDTO> customerDTOs = customers.getContent()
-                .stream()
-                .map(CustomerMapper::mapToCustomerDTO)
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(customerDTOs, PageRequest.of(page, size), customers.getTotalElements());
-    }
-
+//    public Page<CustomerDTO> getCustomers(int page, int size) {
+//        Page<Customer> customers = customerDao.getCustomers(page, size);
+//        List<CustomerDTO> customerDTOs = customers.getContent()
+//                .stream()
+//                .map(CustomerMapper::mapToCustomerDTO)
+//                .collect(Collectors.toList());
+//
+//        return new PageImpl<>(customerDTOs, PageRequest.of(page, size), customers.getTotalElements());
+//    }
+//
     public CustomerDTO getCustomerById(final Long id) {
         Customer customer = customerDao.getCustomerById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
@@ -45,13 +50,13 @@ public class CustomerService {
 
     public Customer addCustomer(CustomerRequest request) {
 
-        if (customerDao.existsByEmail(request.email())) {
+        if (customerDao.existsByEmail(request.email().toLowerCase())) {
             throw new DuplicateResourceException("Email already taken");
         }
         return customerDao.insertCustomer(Customer.builder()
                 .firstName(request.firstName())
                 .surname(request.surname())
-                .email(request.email())
+                .email(request.email().toLowerCase())
                 .age(request.age())
                 .password(passwordEncoder.encode(request.password()))
                 .gender(request.gender())
@@ -80,11 +85,11 @@ public class CustomerService {
 
         boolean changed = false;
 
-        if (request.email() != null && !request.email().isBlank() && !request.email().equals(oldCustomer.getEmail())) {
-            if (customerDao.existsByEmail(request.email()) && !request.email().equals(oldCustomer.getEmail())) {
+        if (request.email() != null && !request.email().isBlank() && !request.email().equalsIgnoreCase(oldCustomer.getEmail())) {
+            if (customerDao.existsByEmail(request.email().toLowerCase()) && !request.email().equalsIgnoreCase(oldCustomer.getEmail())) {
                 throw new DuplicateResourceException("Email already taken");
             }
-            oldCustomer.setEmail(request.email().trim());
+            oldCustomer.setEmail(request.email().trim().toLowerCase());
             changed = true;
         }
         if (request.firstName() != null && !request.firstName().isBlank() && !request.firstName().equals(oldCustomer.getFirstName())) {
@@ -108,5 +113,16 @@ public class CustomerService {
             throw new RequestValidationException("No changes provided");
     }
 
+    public void addProfileImage(Long id, MultipartFile profileImage) {
+        Customer customer = customerDao.getCustomerById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
+        Image image = imageService.uploadImage(profileImage);
+        customer.setProfileImage(image);
+        customerDao.updateCustomer(customer);
+    }
 
+    public Resource getProfileImageByUserId(Long id) {
+        String fileName = customerDao.getProfileFileNameByCustomerId(id);
+        return fileName == null? null : imageService.serveFiles(fileName);
+    }
 }

@@ -12,7 +12,7 @@ public interface CustomerDao {
 
     Optional<Customer> getCustomerById(Long id);
 
-    Optional<Customer> getCustomerByEmail(String email);
+    Customer getCustomerByEmail(String email);
 
     Customer insertCustomer(Customer customer);
 
@@ -23,4 +23,6 @@ public interface CustomerDao {
     boolean existsByEmail(String email);
 
     boolean existsById(Long id);
+
+    String getProfileFileNameByCustomerId(Long id);
 }

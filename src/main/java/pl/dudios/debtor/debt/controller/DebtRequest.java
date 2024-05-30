@@ -3,7 +3,7 @@ package pl.dudios.debtor.debt.controller;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record DeptRequest(
+public record DebtRequest(
         String debtorEmail,
         String creditorEmail,
         BigDecimal amount,

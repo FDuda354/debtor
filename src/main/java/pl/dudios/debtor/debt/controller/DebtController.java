@@ -68,12 +68,12 @@ public class DebtController {
         return ResponseEntity.ok(deptService.getCreditorCount(customer.getId()));
     }
 
-//    @PostMapping
-//    public ResponseEntity<Void> addDebt(@RequestBody DeptRequest request) {
-//        deptService.addDebt(request);
-//
-//        return ResponseEntity.noContent().build();
-//    }
+    @PostMapping
+    public ResponseEntity<Void> addDebt(@RequestBody DebtRequest request) {
+        deptService.addDebt(request);
+
+        return ResponseEntity.noContent().build();
+    }
 //
 //    @DeleteMapping
 //    public ResponseEntity<Void> cancelDebt(@RequestParam Long debtId) {

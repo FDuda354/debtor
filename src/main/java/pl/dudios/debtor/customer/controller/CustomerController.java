@@ -57,12 +57,11 @@ public class CustomerController {
     }
 
     @GetMapping("/image")
-    public ResponseEntity<Resource> serveImage(@AuthenticationPrincipal Customer customer) throws IOException {
-        Resource resource = imageService.serveFiles(customer.getProfileImage());
-        log.info("downloaded file: {}", resource.getFilename());
+    public ResponseEntity<Resource> serveImage(@RequestParam("customerImage") String customerImage) throws IOException {
+        Resource resource = imageService.serveFiles(customerImage);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(Path.of(customer.getProfileImage())))
+                .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(Path.of(customerImage)))
                 .body(resource);
     }
 //

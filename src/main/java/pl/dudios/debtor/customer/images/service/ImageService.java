@@ -13,6 +13,10 @@ import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
 import pl.dudios.debtor.utils.ExistingFileRenameUtils;
 import pl.dudios.debtor.utils.SlugifyUtils;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +30,7 @@ public class ImageService {
     private final ImageRepository imageRepository;
     private final ExistingFileRenameUtils renameUtils;
 
+    @CacheEvict(value = "images", key = "#newFileName")
     public Image uploadImage(MultipartFile profileImage) throws RequestValidationException {
         String newFileName = SlugifyUtils.slugifyFileName(profileImage.getOriginalFilename());
         newFileName = renameUtils.renameFileIfExists(newFileName);
@@ -43,6 +48,7 @@ public class ImageService {
         }
     }
 
+    @Cacheable("images")
     public Resource serveFiles(String fileName) {
         Image creditCardImage = imageRepository.findById(fileName).orElseThrow(() -> {
             log.error("Cant Find file: {}", fileName);

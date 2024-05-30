@@ -1,23 +1,31 @@
 package pl.dudios.debtor.customer.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import pl.dudios.debtor.customer.images.service.ImageService;
 import pl.dudios.debtor.customer.model.Customer;
-import pl.dudios.debtor.customer.model.CustomerDTO;
 import pl.dudios.debtor.customer.service.CustomerService;
 import pl.dudios.debtor.security.jwt.JwtUtil;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/customers")
 public class CustomerController {
 
+    private static final Logger log = LoggerFactory.getLogger(CustomerController.class);
     private final CustomerService customerService;
+    private final ImageService imageService;
     private final JwtUtil jwtUtil;
 
 //    @GetMapping()
@@ -27,10 +35,10 @@ public class CustomerController {
 //        return customerService.getCustomers(page, size);
 //    }
 //
-    @GetMapping("/{id}")
-    public CustomerDTO getCustomer(@PathVariable final Long id) {
-        return customerService.getCustomerById(id);
-    }
+//    @GetMapping("/{id}")
+//    public CustomerDTO getCustomer(@PathVariable final Long id) {
+//        return customerService.getCustomerById(id);
+//    }
 //917
 
     @PostMapping
@@ -49,10 +57,13 @@ public class CustomerController {
     }
 
     @GetMapping("/image")
-    public ResponseEntity<Resource> serveImage(@AuthenticationPrincipal Customer customer) {
-        Resource file = customerService.getProfileImageByUserId(customer.getId());
+    public ResponseEntity<Resource> serveImage(@AuthenticationPrincipal Customer customer) throws IOException {
+        Resource resource = imageService.serveFiles(customer.getProfileImage());
+        log.info("downloaded file: {}", resource.getFilename());
+
         return ResponseEntity.ok()
-                .body(file);
+                .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(Path.of(customer.getProfileImage())))
+                .body(resource);
     }
 //
 //    @DeleteMapping("/{id}")

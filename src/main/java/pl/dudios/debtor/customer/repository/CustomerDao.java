@@ -12,7 +12,7 @@ public interface CustomerDao {
 
     Optional<Customer> getCustomerById(Long id);
 
-    Customer getCustomerByEmail(String email);
+    Optional<Customer>  getCustomerByEmail(String email);
 
     Customer insertCustomer(Customer customer);
 

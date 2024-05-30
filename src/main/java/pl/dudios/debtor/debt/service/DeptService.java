@@ -42,8 +42,10 @@ public class DeptService {
         if (request.debtorEmail() == null || request.debtorEmail().equalsIgnoreCase(request.creditorEmail())) {
             throw new RequestValidationException("debtor mail and creditor email are the same");
         }
-        Customer debtor = customerDao.getCustomerByEmail(request.debtorEmail().toLowerCase());
-        Customer creditor = customerDao.getCustomerByEmail(request.creditorEmail().toLowerCase());
+        Customer debtor = customerDao.getCustomerByEmail(request.debtorEmail().toLowerCase())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with email: " + request.debtorEmail() + " not found"));
+        Customer creditor = customerDao.getCustomerByEmail(request.creditorEmail().toLowerCase())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with email: " + request.creditorEmail() + " not found"));
 
         Debt debt = Debt.builder()
                 .debtor(debtor)

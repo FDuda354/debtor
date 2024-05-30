@@ -1,10 +1,6 @@
 package pl.dudios.debtor.customer.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,9 +15,6 @@ import pl.dudios.debtor.customer.repository.CustomerDao;
 import pl.dudios.debtor.exception.DuplicateResourceException;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -117,12 +110,7 @@ public class CustomerService {
         Customer customer = customerDao.getCustomerById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
         Image image = imageService.uploadImage(profileImage);
-        customer.setProfileImage(image);
+        customer.setProfileImage(image.getFileName());
         customerDao.updateCustomer(customer);
-    }
-
-    public Resource getProfileImageByUserId(Long id) {
-        String fileName = customerDao.getProfileFileNameByCustomerId(id);
-        return fileName == null? null : imageService.serveFiles(fileName);
     }
 }

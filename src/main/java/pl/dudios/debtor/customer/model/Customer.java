@@ -71,9 +71,7 @@ public class Customer implements UserDetails {
     private boolean enabled;
     @Column(nullable = false)
     private boolean accountNonLocked;
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(unique = true, name = "profile_image")
-    private Image profileImage;
+    private String profileImage;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

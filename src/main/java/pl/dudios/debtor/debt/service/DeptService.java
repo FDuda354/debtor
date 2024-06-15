@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.repository.CustomerDao;
 import pl.dudios.debtor.debt.DebtMapper;
@@ -61,17 +62,17 @@ public class DeptService {
         return deptRepository.save(debt);
     }
 
+    @Transactional
     public void cancelDebt(Long debtId) {
         Debt debt = deptRepository.findById(debtId).orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
-        debt.setStatus(CANCELLED);
+        if (debt.getStatus().equals(ACTIVE)) {
+            debt.setStatus(CANCELLED);
+
+        }
     }
 
-    public void archiveDebt(Long debtId) {
-        Debt debt = deptRepository.findById(debtId).orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
-        debt.setStatus(ARCHIVED);
-    }
-
-    public void reActiveDebt(Long debtId) {
+    @Transactional
+    public void reactiveDebt(Long debtId) {
         Debt debt = deptRepository.findById(debtId).orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
         debt.setStatus(ACTIVE);
     }

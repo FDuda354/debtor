@@ -82,11 +82,18 @@ public class DebtController {
 
         return ResponseEntity.noContent().build();
     }
-//
-//    @DeleteMapping
-//    public ResponseEntity<Void> cancelDebt(@RequestParam Long debtId) {
-//        deptService.cancelDebt(debtId);
-//
-//        return ResponseEntity.noContent().build();
-//    }
+
+    @PutMapping("/cancel")
+    public ResponseEntity<Void> cancelDebt(@RequestParam Long debtId) {
+        deptService.cancelDebt(debtId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/reactive")
+    public ResponseEntity<Void> reactiveDebt(@RequestParam Long debtId) {
+        deptService.reactiveDebt(debtId);
+
+        return ResponseEntity.noContent().build();
+    }
 }

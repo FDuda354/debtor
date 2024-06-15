@@ -10,6 +10,7 @@ import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.model.DebtDTO;
 import pl.dudios.debtor.debt.service.DeptService;
+import pl.dudios.debtor.exception.UnauthorizedAccessException;
 
 import java.math.BigDecimal;
 
@@ -22,26 +23,33 @@ public class DebtController {
     private final DeptService deptService;
 
     @GetMapping
-    public ResponseEntity<Debt> getDebtById(@RequestParam(value = "debtId") Long debtId) {
-
-        return ResponseEntity.ok(deptService.getDebtById(debtId));
+    public ResponseEntity<Debt> getDebtById(@RequestParam(value = "debtId") Long debtId,
+                                            @AuthenticationPrincipal Customer customer) {
+        Debt debt = deptService.getDebtById(debtId);
+        if (debt.getCreditor().equals(customer) || debt.getDebtor().equals(customer)) {
+            return ResponseEntity.ok(debt);
+        } else {
+           throw new UnauthorizedAccessException("You are not authorized to view this debt");
+        }
     }
 
 
     @GetMapping("/debtors")
     public ResponseEntity<Page<DebtDTO>> getDebtsByDebtorId(@RequestParam(value = "page", defaultValue = "0") int page,
                                                             @RequestParam(value = "size", defaultValue = "10") int size,
+                                                            @RequestParam(value = "onlyActive") boolean onlyActive,
                                                             @AuthenticationPrincipal Customer customer) {
 
-        return ResponseEntity.ok(deptService.getDebtsByDebtorId(customer.getId(), page, size));
+        return ResponseEntity.ok(deptService.getDebtsByDebtorId(customer.getId(), page, size, onlyActive));
     }
 
     @GetMapping("/creditors")
     public ResponseEntity<Page<DebtDTO>> getDebtsByCreditorId(@RequestParam(value = "page", defaultValue = "0") int page,
                                                               @RequestParam(value = "size", defaultValue = "10") int size,
+                                                              @RequestParam(value = "onlyActive") boolean onlyActive,
                                                               @AuthenticationPrincipal Customer customer) {
 
-        return ResponseEntity.ok(deptService.getDebtsByCreditorId(customer.getId(), page, size));
+        return ResponseEntity.ok(deptService.getDebtsByCreditorId(customer.getId(), page, size, onlyActive));
     }
 
     @GetMapping("/summary/debt")

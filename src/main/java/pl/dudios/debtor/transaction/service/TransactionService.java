@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.model.DebtStatus;
@@ -48,16 +49,16 @@ public class TransactionService {
                 .debt(debt)
                 .balanceBeforeTransaction(debt.getAmount())
                 .amount(request.amount())
-                .balanceAfterTransaction(debt.getAmount().min(request.amount()))
+                .balanceAfterTransaction(debt.getAmount().subtract(request.amount()))
                 .description(request.description())
                 .paymentDate(LocalDateTime.now())
                 .files(request.files())
                 .build();
 
         debt.getTransactions().add(transaction);
-        debt.setAmount(debt.getAmount().min(transaction.getAmount()));
+        debt.setAmount(transaction.getBalanceAfterTransaction());
 
-        if (debtIsPaid(debt)) {
+        if (debt.getAmount().compareTo(BigDecimal.ZERO) == 0) {
             debt.setStatus(DebtStatus.FINISHED);
         }
 
@@ -89,11 +90,28 @@ public class TransactionService {
 
     public Page<Transaction> getTransactionsByDebtId(Long debtId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return transactionRepository.findAllByDebtId(debtId, pageable);
+        return transactionRepository.findAllByDebtIdOrderByPaymentDateDesc(debtId, pageable);
     }
 
     public Page<Transaction> getTransactionsByCustomerId(Long customerId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return transactionRepository.findByCustomerDebtIds(customerId, pageable);
+    }
+
+    @Transactional
+    public void rollbackTransaction(Long transactionId) {
+        Long debtId = deptRepository.findByTransactionId(transactionId);
+
+        Debt debt = deptRepository.findById(debtId)
+                .orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
+        if(debt.getStatus().equals(DebtStatus.ACTIVE) || debt.getStatus().equals(DebtStatus.FINISHED)){
+            Transaction transaction = transactionRepository.findById(transactionId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Transaction with id: " + transactionId + " not found"));
+            debt.getTransactions().remove(transaction);
+            debt.setAmount(debt.getAmount().add(transaction.getAmount()));
+            debt.setStatus(debt.getAmount().equals(BigDecimal.ZERO) ? DebtStatus.FINISHED : DebtStatus.ACTIVE);
+            transactionRepository.deleteById(transactionId);
+        }
+
     }
 }

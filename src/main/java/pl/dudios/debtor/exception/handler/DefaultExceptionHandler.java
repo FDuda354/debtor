@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import pl.dudios.debtor.exception.DuplicateResourceException;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
+import pl.dudios.debtor.exception.UnauthorizedAccessException;
 
 import java.time.LocalDateTime;
 
@@ -44,6 +45,12 @@ public class DefaultExceptionHandler {
     public ResponseEntity<ApiError> handleException(RequestValidationException e, HttpServletRequest request) {
         ApiError apiError = new ApiError(request.getRequestURI(), e.getMessage(), HttpStatus.BAD_REQUEST.value(), LocalDateTime.now());
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ApiError> handleException(UnauthorizedAccessException e, HttpServletRequest request) {
+        ApiError apiError = new ApiError(request.getRequestURI(), e.getMessage(), HttpStatus.FORBIDDEN.value(), LocalDateTime.now());
+        return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)

@@ -34,11 +34,9 @@ public class CustomerService {
 //        return new PageImpl<>(customerDTOs, PageRequest.of(page, size), customers.getTotalElements());
 //    }
 //
-    public CustomerDTO getCustomerById(final Long id) {
-        Customer customer = customerDao.getCustomerById(id)
+    public Customer getCustomerById(final Long id) {
+        return customerDao.getCustomerById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
-
-        return CustomerMapper.mapToCustomerDTO(customer);
     }
 
     public Customer addCustomer(CustomerRequest request) {

@@ -35,13 +35,20 @@ public class TransactionController {
 
         return ResponseEntity.ok(transactionService.getTransactionsByDebtId(debtId, page, size));
     }
-//
-//    @PostMapping
-//    public ResponseEntity<Void> addTransaction(@RequestBody TransactionRequest request) {
-//        transactionService.addTransaction(request);
-//
-//        return ResponseEntity.noContent().build();
-//    }
+
+    @PostMapping
+    public ResponseEntity<Void> addTransaction(@RequestBody TransactionRequest request) {
+        transactionService.addTransaction(request);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> rollbackTransaction(@RequestParam(value = "transactionId") Long transactionId) {
+        transactionService.rollbackTransaction(transactionId);
+
+        return ResponseEntity.noContent().build();
+    }
 //
 //    @PostMapping("/file")
 //    public ResponseEntity<Void> addTransactionFile(@RequestParam("transactionId") Long transactionId,

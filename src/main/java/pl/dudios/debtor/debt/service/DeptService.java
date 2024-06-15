@@ -51,6 +51,7 @@ public class DeptService {
                 .debtor(debtor)
                 .creditor(creditor)
                 .amount(request.amount())
+                .staredAmount(request.amount())
                 .description(request.description())
                 .repaymentDate(request.repaymentDate())
                 .startDate(LocalDateTime.now())
@@ -75,11 +76,11 @@ public class DeptService {
         debt.setStatus(ACTIVE);
     }
 
-    public Page<DebtDTO> getDebtsByDebtorId(Long debtorId, int page, int size) {
+    public Page<DebtDTO> getDebtsByDebtorId(Long debtorId, int page, int size, boolean onlyActive) {
         Pageable pageable = PageRequest.of(page, size);
         Customer debtor = customerDao.getCustomerById(debtorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with Id: " + debtorId + " not found"));
-        Page<Debt> debts = deptRepository.findAllByDebtorAndStatusIs(debtor, ACTIVE, pageable);
+        Page<Debt> debts = onlyActive? deptRepository.findAllByDebtorAndStatusIs(debtor, ACTIVE, pageable): deptRepository.findAllByDebtor(debtor, pageable);
         List<DebtDTO> debtDTOs = debts.getContent()
                 .stream()
                 .map(d -> DebtMapper.mapToDebtDTO(d, false))
@@ -88,11 +89,11 @@ public class DeptService {
         return new PageImpl<>(debtDTOs, PageRequest.of(page, size), debts.getTotalElements());
     }
 
-    public Page<DebtDTO> getDebtsByCreditorId(Long creditorId, int page, int size) {
+    public Page<DebtDTO> getDebtsByCreditorId(Long creditorId, int page, int size, boolean onlyActive) {
         Pageable pageable = PageRequest.of(page, size);
         Customer creditor = customerDao.getCustomerById(creditorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with Id: " + creditorId + " not found"));
-        Page<Debt> debts = deptRepository.findAllByCreditorAndStatusIs(creditor, ACTIVE, pageable);
+        Page<Debt> debts = onlyActive? deptRepository.findAllByCreditorAndStatusIs(creditor, ACTIVE, pageable): deptRepository.findAllByCreditor(creditor, pageable);
         List<DebtDTO> debtDTOs = debts.getContent()
                 .stream()
                 .map(d -> DebtMapper.mapToDebtDTO(d, true))
@@ -110,10 +111,10 @@ public class DeptService {
     }
 
     public Long getDebtCount(Long debtorId) {
-        return deptRepository.countByDebtorId(debtorId);
+        return deptRepository.countByDebtorIdAndStatusIs(debtorId, ACTIVE);
     }
 
     public Long getCreditorCount(Long creditorId) {
-        return deptRepository.countByCreditorId(creditorId);
+        return deptRepository.countByCreditorIdAndStatusIs(creditorId, ACTIVE);
     }
 }

@@ -12,11 +12,12 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    Page<Transaction> findAllByDebtId(Long debtId, Pageable pageable);
+    Page<Transaction> findAllByDebtIdOrderByPaymentDateDesc(Long debtId, Pageable pageable);
 
     Page<Transaction> findByDebtIdIn(List<Long> debtIds, Pageable pageable);
 
     @Query("SELECT t FROM Transaction t WHERE t.debt.id IN (" +
-            "SELECT d.id FROM Debt d WHERE d.creditor.id = :customerId OR d.debtor.id = :customerId)")
+            "SELECT d.id FROM Debt d WHERE d.creditor.id = :customerId OR d.debtor.id = :customerId)" +
+            "ORDER BY t.paymentDate DESC")
     Page<Transaction> findByCustomerDebtIds(Long customerId, Pageable pageable);
 }

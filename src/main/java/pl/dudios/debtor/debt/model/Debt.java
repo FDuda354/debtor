@@ -45,6 +45,7 @@ public class Debt {
     @JsonIgnore
     private List<Transaction> transactions;
     private BigDecimal amount;
+    private BigDecimal staredAmount;
     private String description;
     private LocalDateTime repaymentDate;
     private LocalDateTime startDate;

@@ -12,6 +12,7 @@ public class DebtMapper {
                 debt.getId(),
                 isForCreditor ? debt.getDebtor() : debt.getCreditor(),
                 debt.getAmount(),
+                debt.getStaredAmount(),
                 debt.getDescription(),
                 debt.getRepaymentDate(),
                 debt.getStartDate(),

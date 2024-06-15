@@ -9,6 +9,7 @@ public record DebtDTO(
         Long id,
         Customer customer,
         BigDecimal amount,
+        BigDecimal startedAmount,
         String description,
         LocalDateTime repaymentDate,
         LocalDateTime startDate,

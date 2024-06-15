@@ -10,7 +10,6 @@ import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.model.DebtStatus;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Repository
 public interface DeptRepository extends JpaRepository<Debt, Long> {
@@ -18,7 +17,9 @@ public interface DeptRepository extends JpaRepository<Debt, Long> {
     Page<Debt> findAllByDebtorAndStatusIs(Customer debtor, DebtStatus status, Pageable pageable);
 
     Page<Debt> findAllByCreditorAndStatusIs(Customer creditor, DebtStatus status, Pageable pageable);
+
     Page<Debt> findAllByCreditor(Customer creditor, Pageable pageable);
+
     Page<Debt> findAllByDebtor(Customer creditor, Pageable pageable);
 
     @Query(value = "SELECT SUM(d.amount)" +

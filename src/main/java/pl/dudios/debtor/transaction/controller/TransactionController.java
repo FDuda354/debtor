@@ -6,12 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.transaction.model.Transaction;
 import pl.dudios.debtor.transaction.service.TransactionService;
-
-import java.util.List;
 
 @Slf4j
 @RestController

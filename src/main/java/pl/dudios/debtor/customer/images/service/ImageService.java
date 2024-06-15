@@ -2,6 +2,8 @@ package pl.dudios.debtor.customer.images.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -13,10 +15,6 @@ import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
 import pl.dudios.debtor.utils.ExistingFileRenameUtils;
 import pl.dudios.debtor.utils.SlugifyUtils;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.CacheEvict;
-
-
 
 import java.io.IOException;
 import java.io.InputStream;

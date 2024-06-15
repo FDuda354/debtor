@@ -29,7 +29,7 @@ public class DebtController {
         if (debt.getCreditor().equals(customer) || debt.getDebtor().equals(customer)) {
             return ResponseEntity.ok(debt);
         } else {
-           throw new UnauthorizedAccessException("You are not authorized to view this debt");
+            throw new UnauthorizedAccessException("You are not authorized to view this debt");
         }
     }
 

@@ -80,7 +80,7 @@ public class DeptService {
         Pageable pageable = PageRequest.of(page, size);
         Customer debtor = customerDao.getCustomerById(debtorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with Id: " + debtorId + " not found"));
-        Page<Debt> debts = onlyActive? deptRepository.findAllByDebtorAndStatusIs(debtor, ACTIVE, pageable): deptRepository.findAllByDebtor(debtor, pageable);
+        Page<Debt> debts = onlyActive ? deptRepository.findAllByDebtorAndStatusIs(debtor, ACTIVE, pageable) : deptRepository.findAllByDebtor(debtor, pageable);
         List<DebtDTO> debtDTOs = debts.getContent()
                 .stream()
                 .map(d -> DebtMapper.mapToDebtDTO(d, false))
@@ -93,7 +93,7 @@ public class DeptService {
         Pageable pageable = PageRequest.of(page, size);
         Customer creditor = customerDao.getCustomerById(creditorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with Id: " + creditorId + " not found"));
-        Page<Debt> debts = onlyActive? deptRepository.findAllByCreditorAndStatusIs(creditor, ACTIVE, pageable): deptRepository.findAllByCreditor(creditor, pageable);
+        Page<Debt> debts = onlyActive ? deptRepository.findAllByCreditorAndStatusIs(creditor, ACTIVE, pageable) : deptRepository.findAllByCreditor(creditor, pageable);
         List<DebtDTO> debtDTOs = debts.getContent()
                 .stream()
                 .map(d -> DebtMapper.mapToDebtDTO(d, true))

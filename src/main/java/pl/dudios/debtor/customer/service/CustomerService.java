@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import pl.dudios.debtor.customer.CustomerMapper;
 import pl.dudios.debtor.customer.controller.CustomerRequest;
 import pl.dudios.debtor.customer.images.model.Image;
 import pl.dudios.debtor.customer.images.service.ImageService;
 import pl.dudios.debtor.customer.model.Customer;
-import pl.dudios.debtor.customer.model.CustomerDTO;
 import pl.dudios.debtor.customer.model.Role;
 import pl.dudios.debtor.customer.repository.CustomerDao;
 import pl.dudios.debtor.exception.DuplicateResourceException;
@@ -24,7 +22,7 @@ public class CustomerService {
     private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
 
-//    public Page<CustomerDTO> getCustomers(int page, int size) {
+    //    public Page<CustomerDTO> getCustomers(int page, int size) {
 //        Page<Customer> customers = customerDao.getCustomers(page, size);
 //        List<CustomerDTO> customerDTOs = customers.getContent()
 //                .stream()

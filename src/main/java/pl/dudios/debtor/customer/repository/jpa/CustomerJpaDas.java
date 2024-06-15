@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.repository.CustomerDao;
-import pl.dudios.debtor.customer.repository.CustomerProjection;
 
 import java.util.Optional;
 

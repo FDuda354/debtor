@@ -72,7 +72,7 @@ public class CustomerController {
 
     @DeleteMapping("/friend")
     public ResponseEntity<Void> deleteFriend(@AuthenticationPrincipal Customer customer,
-                                                @RequestParam("friendId") Long friendId) {
+                                             @RequestParam("friendId") Long friendId) {
         customerService.deleteFriend(customer.getId(), friendId);
         return ResponseEntity.noContent().build();
     }

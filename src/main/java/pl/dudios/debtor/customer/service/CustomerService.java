@@ -24,8 +24,6 @@ import pl.dudios.debtor.friends.model.FriendShipStatus;
 import pl.dudios.debtor.friends.model.Friendship;
 import pl.dudios.debtor.friends.repository.FriendshipRepo;
 
-import java.util.Optional;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -150,7 +148,7 @@ public class CustomerService {
 
     public void deleteFriend(Long customerId, Long friendId) {
 
-        Friendship friendship = friendshipRepo.findByCustomerIdAndFriendId(customerId, friendId).orElseThrow(() -> new ResourceNotFoundException("Friendship with customerId: " + customerId + " and " +friendId + " not found"));
+        Friendship friendship = friendshipRepo.findByCustomerIdAndFriendId(customerId, friendId).orElseThrow(() -> new ResourceNotFoundException("Friendship with customerId: " + customerId + " and " + friendId + " not found"));
         friendshipRepo.deleteById(friendship.getId());
     }
 }

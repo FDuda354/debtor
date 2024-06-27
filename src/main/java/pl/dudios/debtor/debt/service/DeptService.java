@@ -23,7 +23,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pl.dudios.debtor.debt.model.DebtStatus.*;
+import static pl.dudios.debtor.debt.model.DebtStatus.ACTIVE;
+import static pl.dudios.debtor.debt.model.DebtStatus.CANCELLED;
 
 @Slf4j
 @Service

@@ -77,6 +77,7 @@ public class Customer implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
     private List<Customer> friends;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

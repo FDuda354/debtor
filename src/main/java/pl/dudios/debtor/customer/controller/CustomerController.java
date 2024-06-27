@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pl.dudios.debtor.customer.images.service.ImageService;
 import pl.dudios.debtor.customer.model.Customer;
+import pl.dudios.debtor.customer.model.CustomerDTO;
 import pl.dudios.debtor.customer.service.CustomerService;
+import pl.dudios.debtor.friends.model.Friendship;
 import pl.dudios.debtor.security.jwt.JwtUtil;
 
 import java.io.IOException;
@@ -27,19 +30,6 @@ public class CustomerController {
     private final CustomerService customerService;
     private final ImageService imageService;
     private final JwtUtil jwtUtil;
-
-//    @GetMapping()
-//    public Page<CustomerDTO> getCustomers(
-//            @RequestParam(value = "page", defaultValue = "0") int page,
-//            @RequestParam(value = "size", defaultValue = "10") int size) {
-//        return customerService.getCustomers(page, size);
-//    }
-//
-//    @GetMapping("/{id}")
-//    public CustomerDTO getCustomer(@PathVariable final Long id) {
-//        return customerService.getCustomerById(id);
-//    }
-//917
 
     @PostMapping
     public ResponseEntity<?> addCustomer(@RequestBody CustomerRequest request) {
@@ -64,15 +54,27 @@ public class CustomerController {
                 .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(Path.of(customerImage)))
                 .body(resource);
     }
-//
-//    @DeleteMapping("/{id}")
-//    public void deleteCustomer(@PathVariable final Long id) {
-//        customerService.deleteCustomerById(id);
-//    }
-//
-//    @PutMapping("/{id}")
-//    public void updateCustomer(@PathVariable final Long id,
-//                               @RequestBody CustomerRequest request) {
-//        customerService.updateCustomer(id, request);
-//    }
+
+    @GetMapping("/friends")
+    public ResponseEntity<Page<CustomerDTO>> getAllFriends(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                           @RequestParam(value = "size", defaultValue = "10") int size,
+                                                           @AuthenticationPrincipal Customer customer) {
+        Page<CustomerDTO> friends = customerService.getAllFriends(customer.getId(), page, size);
+        return ResponseEntity.ok().body(friends);
+    }
+
+    @PostMapping("/friend")
+    public ResponseEntity<Friendship> addFriend(@AuthenticationPrincipal Customer customer,
+                                                @RequestParam("email") String email) {
+        Friendship friendship = customerService.addFriend(customer.getId(), email);
+        return ResponseEntity.ok().body(friendship);
+    }
+
+    @DeleteMapping("/friend")
+    public ResponseEntity<Void> deleteFriend(@AuthenticationPrincipal Customer customer,
+                                                @RequestParam("friendId") Long friendId) {
+        customerService.deleteFriend(customer.getId(), friendId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

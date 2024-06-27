@@ -70,7 +70,13 @@ public class Customer implements UserDetails {
     @Column(nullable = false)
     private boolean accountNonLocked;
     private String profileImage;
-
+    @ManyToMany
+    @JoinTable(
+            name = "CUSTOMER_FRIENDS",
+            joinColumns = @JoinColumn(name = "customer_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
+    )
+    private List<Customer> friends;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

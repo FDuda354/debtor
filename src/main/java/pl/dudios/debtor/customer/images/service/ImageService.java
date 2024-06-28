@@ -29,10 +29,7 @@ public class ImageService {
     private final ExistingFileRenameUtils renameUtils;
 
     @CacheEvict(value = "images", key = "#newFileName")
-    public Image uploadImage(MultipartFile profileImage) throws RequestValidationException {
-        String newFileName = SlugifyUtils.slugifyFileName(profileImage.getOriginalFilename());
-        newFileName = renameUtils.renameFileIfExists(newFileName);
-
+    public Image uploadImageInternal(MultipartFile profileImage, String newFileName) throws RequestValidationException {
         try (InputStream inputStream = profileImage.getInputStream()) {
             Image image = Image.builder()
                     .fileName(newFileName)
@@ -44,6 +41,13 @@ public class ImageService {
             log.error("Error while uploading image", e);
             throw new RequestValidationException("Cant save file");
         }
+    }
+
+
+    public Image uploadImage(MultipartFile profileImage) throws RequestValidationException {
+        String newFileName = SlugifyUtils.slugifyFileName(profileImage.getOriginalFilename());
+        newFileName = renameUtils.renameFileIfExists(newFileName);
+        return uploadImageInternal(profileImage, newFileName);
     }
 
     @Cacheable("images")

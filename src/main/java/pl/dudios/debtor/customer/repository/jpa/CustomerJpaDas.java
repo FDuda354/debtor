@@ -1,9 +1,6 @@
 package pl.dudios.debtor.customer.repository.jpa;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.repository.CustomerDao;
@@ -16,12 +13,6 @@ import java.util.Optional;
 public class CustomerJpaDas implements CustomerDao {
 
     private final CustomerRepo customerRepo;
-
-    @Override
-    public Page<Customer> getCustomers(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return customerRepo.findAll(pageable);
-    }
 
     @Override
     public Optional<Customer> getCustomerById(Long id) {
@@ -58,9 +49,5 @@ public class CustomerJpaDas implements CustomerDao {
         return customerRepo.existsById(id);
     }
 
-    @Override
-    public String getProfileFileNameByCustomerId(Long id) {
-        return customerRepo.findProfileImage(id);
-    }
 }
 

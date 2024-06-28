@@ -23,7 +23,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pl.dudios.debtor.debt.model.DebtStatus.*;
+import static pl.dudios.debtor.debt.model.DebtStatus.ACTIVE;
+import static pl.dudios.debtor.debt.model.DebtStatus.CANCELLED;
 
 @Slf4j
 @Service
@@ -117,5 +118,10 @@ public class DeptService {
 
     public Long getCreditorCount(Long creditorId) {
         return deptRepository.countByCreditorIdAndStatusIs(creditorId, ACTIVE);
+    }
+
+    public BigDecimal getFriendBalance(Long id, Long friendId) {
+        BigDecimal friendBalance = deptRepository.getFriendBalance(id, friendId);
+        return friendBalance == null ? BigDecimal.ZERO : friendBalance;
     }
 }

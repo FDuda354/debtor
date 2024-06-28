@@ -26,7 +26,7 @@ public class DebtController {
     public ResponseEntity<Debt> getDebtById(@RequestParam(value = "debtId") Long debtId,
                                             @AuthenticationPrincipal Customer customer) {
         Debt debt = deptService.getDebtById(debtId);
-        if (debt.getCreditor().equals(customer) || debt.getDebtor().equals(customer)) {
+        if (debt.getCreditor().getId().equals(customer.getId()) || debt.getDebtor().getId().equals(customer.getId())) {
             return ResponseEntity.ok(debt);
         } else {
             throw new UnauthorizedAccessException("You are not authorized to view this debt");
@@ -95,5 +95,12 @@ public class DebtController {
         deptService.reactiveDebt(debtId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/summary/friend-balance")
+    public ResponseEntity<BigDecimal> getFriendBalance(@AuthenticationPrincipal Customer customer,
+                                                       @RequestParam("friendId") Long friendId) {
+
+        return ResponseEntity.ok(deptService.getFriendBalance(customer.getId(), friendId));
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dudios.debtor.customer.model.Customer;
-import pl.dudios.debtor.customer.repository.CustomerDao;
+import pl.dudios.debtor.customer.repository.CustomerRepo;
 import pl.dudios.debtor.debt.DebtMapper;
 import pl.dudios.debtor.debt.controller.DebtRequest;
 import pl.dudios.debtor.debt.model.Debt;
@@ -32,7 +32,7 @@ import static pl.dudios.debtor.debt.model.DebtStatus.CANCELLED;
 public class DeptService {
 
     private final DeptRepository deptRepository;
-    private final CustomerDao customerDao;
+    private final CustomerRepo customerRepo;
 
     public Debt getDebtById(Long debtId) {
         return deptRepository.findById(debtId)
@@ -44,9 +44,9 @@ public class DeptService {
         if (request.debtorEmail() == null || request.debtorEmail().equalsIgnoreCase(request.creditorEmail())) {
             throw new RequestValidationException("debtor mail and creditor email are the same");
         }
-        Customer debtor = customerDao.getCustomerByEmail(request.debtorEmail().toLowerCase())
+        Customer debtor = customerRepo.findByEmail(request.debtorEmail().toLowerCase())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with email: " + request.debtorEmail() + " not found"));
-        Customer creditor = customerDao.getCustomerByEmail(request.creditorEmail().toLowerCase())
+        Customer creditor = customerRepo.findByEmail(request.creditorEmail().toLowerCase())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with email: " + request.creditorEmail() + " not found"));
 
         Debt debt = Debt.builder()
@@ -80,7 +80,7 @@ public class DeptService {
 
     public Page<DebtDTO> getDebtsByDebtorId(Long debtorId, int page, int size, boolean onlyActive) {
         Pageable pageable = PageRequest.of(page, size);
-        Customer debtor = customerDao.getCustomerById(debtorId)
+        Customer debtor = customerRepo.findById(debtorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with Id: " + debtorId + " not found"));
         Page<Debt> debts = onlyActive ? deptRepository.findAllByDebtorAndStatusIs(debtor, ACTIVE, pageable) : deptRepository.findAllByDebtor(debtor, pageable);
         List<DebtDTO> debtDTOs = debts.getContent()
@@ -93,7 +93,7 @@ public class DeptService {
 
     public Page<DebtDTO> getDebtsByCreditorId(Long creditorId, int page, int size, boolean onlyActive) {
         Pageable pageable = PageRequest.of(page, size);
-        Customer creditor = customerDao.getCustomerById(creditorId)
+        Customer creditor = customerRepo.findById(creditorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with Id: " + creditorId + " not found"));
         Page<Debt> debts = onlyActive ? deptRepository.findAllByCreditorAndStatusIs(creditor, ACTIVE, pageable) : deptRepository.findAllByCreditor(creditor, pageable);
         List<DebtDTO> debtDTOs = debts.getContent()

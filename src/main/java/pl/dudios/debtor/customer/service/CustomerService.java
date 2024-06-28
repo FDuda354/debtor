@@ -16,7 +16,7 @@ import pl.dudios.debtor.customer.images.service.ImageService;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.CustomerDTO;
 import pl.dudios.debtor.customer.model.Role;
-import pl.dudios.debtor.customer.repository.CustomerDao;
+import pl.dudios.debtor.customer.repository.CustomerRepo;
 import pl.dudios.debtor.exception.DuplicateResourceException;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
@@ -31,22 +31,22 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomerService {
 
-    private final CustomerDao customerDao;
+    private final CustomerRepo customerRepo;
     private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
     private final FriendshipRepo friendshipRepo;
 
     public Customer getCustomerById(final Long id) {
-        return customerDao.getCustomerById(id)
+        return customerRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
     }
 
     public Customer addCustomer(CustomerRequest request) {
 
-        if (customerDao.existsByEmail(request.email().toLowerCase())) {
+        if (customerRepo.existsByEmail(request.email().toLowerCase())) {
             throw new DuplicateResourceException("Email already taken");
         }
-        return customerDao.insertCustomer(Customer.builder()
+        return customerRepo.save(Customer.builder()
                 .firstName(request.firstName())
                 .surname(request.surname())
                 .email(request.email().toLowerCase())
@@ -60,11 +60,11 @@ public class CustomerService {
     }
 
     public void updateCustomer(Long id, CustomerRequest request) {
-        Customer oldCustomer = customerDao.getCustomerById(id)
+        Customer oldCustomer = customerRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
         validateRequest(request, oldCustomer);
 
-        customerDao.updateCustomer(oldCustomer);
+        customerRepo.save(oldCustomer);
     }
 
     private void validateRequest(CustomerRequest request, Customer oldCustomer) {
@@ -72,7 +72,7 @@ public class CustomerService {
         boolean changed = false;
 
         if (request.email() != null && !request.email().isBlank() && !request.email().equalsIgnoreCase(oldCustomer.getEmail())) {
-            if (customerDao.existsByEmail(request.email().toLowerCase()) && !request.email().equalsIgnoreCase(oldCustomer.getEmail())) {
+            if (customerRepo.existsByEmail(request.email().toLowerCase()) && !request.email().equalsIgnoreCase(oldCustomer.getEmail())) {
                 throw new DuplicateResourceException("Email already taken");
             }
             oldCustomer.setEmail(request.email().trim().toLowerCase());
@@ -100,18 +100,18 @@ public class CustomerService {
     }
 
     public void addProfileImage(Long id, MultipartFile profileImage) {
-        Customer customer = customerDao.getCustomerById(id)
+        Customer customer = customerRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
         Image image = imageService.uploadImage(profileImage);
         customer.setProfileImage(image.getFileName());
-        customerDao.updateCustomer(customer);
+        customerRepo.save(customer);
     }
 
     @Transactional
     public Friendship addFriend(Long customerId, String email) {
-        Customer customer = customerDao.getCustomerById(customerId)
+        Customer customer = customerRepo.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + customerId + " not found"));
-        Customer newFriend = customerDao.getCustomerByEmail(email)
+        Customer newFriend = customerRepo.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with email: " + email + " not found"));
 
         if (cantBeFriends(customer, newFriend)) {
@@ -139,6 +139,13 @@ public class CustomerService {
         }
 
         return false;
+    }
+
+    public Page<CustomerDTO> getAllFriends(Long customerId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Customer> friendsByCustomerId = friendshipRepo.findFriendsByCustomerId(customerId, pageable);
+        return friendsByCustomerId.map(CustomerMapper::mapToCustomerDTO);
     }
 
     public List<CustomerDTO> getAllFriends(Long customerId) {

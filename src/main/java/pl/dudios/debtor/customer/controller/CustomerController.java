@@ -57,6 +57,14 @@ public class CustomerController {
     }
 
     @GetMapping("/friends")
+    public ResponseEntity<Page<CustomerDTO>> getAllFriends(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                           @RequestParam(value = "size", defaultValue = "10") int size,
+                                                           @AuthenticationPrincipal Customer customer) {
+        Page<CustomerDTO> friends = customerService.getAllFriends(customer.getId(), page, size);
+        return ResponseEntity.ok().body(friends);
+    }
+
+    @GetMapping("/friends/all")
     public ResponseEntity<List<CustomerDTO>> getAllFriends(@AuthenticationPrincipal Customer customer) {
         List<CustomerDTO> friends = customerService.getAllFriends(customer.getId());
         return ResponseEntity.ok().body(friends);

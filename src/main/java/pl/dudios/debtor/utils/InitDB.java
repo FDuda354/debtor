@@ -10,7 +10,7 @@ import pl.dudios.debtor.customer.controller.CustomerRequest;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.Gender;
 import pl.dudios.debtor.customer.model.Role;
-import pl.dudios.debtor.customer.repository.CustomerDao;
+import pl.dudios.debtor.customer.repository.CustomerRepo;
 import pl.dudios.debtor.customer.service.CustomerService;
 import pl.dudios.debtor.debt.controller.DebtRequest;
 import pl.dudios.debtor.debt.model.Debt;
@@ -30,7 +30,7 @@ import java.util.UUID;
 public class InitDB {
 
     private final TransactionService transactionService;
-    private final CustomerDao customerDao;
+    private final CustomerRepo customerDao;
     private final CustomerService customerService;
     private final PasswordEncoder passwordEncoder;
     private final DeptService deptService;
@@ -40,24 +40,6 @@ public class InitDB {
 
 
     public void init() {
-        Customer lutest = customerDao.getCustomerById(1L).orElseThrow();
-
-        for (int i = 502; i < 900; i++) {
-                Customer friend = customerDao.getCustomerById((long) i).orElseThrow();
-            if(i < 501){
-
-                customerService.addFriend(lutest.getId(), friend.getEmail());
-
-            }else {
-                try {
-                customerService.addFriend(friend.getId() , lutest.getEmail());
-                log.info("Dodaje przyjaźń: "+ friend.getEmail() + " a "+ lutest.getEmail() );
-                }catch (Exception e){
-                    log.error(e.getMessage());
-                    //ignore
-                }
-
-            }
 //            try {
 //                Faker faker = new Faker();
 //                Gender gender = random.nextInt(1, 10) / 2 == 1 ? Gender.MALE : Gender.FEMALE;
@@ -125,7 +107,7 @@ public class InitDB {
 //            } catch (Exception e) {
 //                throw new RuntimeException(e);
 //            }
-        }
+//        }
     }
 
 

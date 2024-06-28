@@ -1,4 +1,4 @@
-package pl.dudios.debtor.customer.repository.jpa;
+package pl.dudios.debtor.customer.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import pl.dudios.debtor.customer.model.Customer;

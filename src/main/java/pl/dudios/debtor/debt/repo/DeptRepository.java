@@ -43,4 +43,16 @@ public interface DeptRepository extends JpaRepository<Debt, Long> {
             "WHERE t.id = :transactionId",
             nativeQuery = true)
     Long findByTransactionId(Long transactionId);
+
+    @Query(value = "SELECT SUM(amount) FROM (" +
+            " SELECT SUM(d.amount * -1) AS amount" +
+            " FROM debts AS d" +
+            " WHERE d.debtor_id = :customerId AND d.status = 'ACTIVE' AND d.creditor_id = :friendId" +
+            " UNION ALL" +
+            " SELECT SUM(d.amount) AS amount" +
+            " FROM debts AS d" +
+            " WHERE d.debtor_id = :friendId AND d.status = 'ACTIVE' AND d.creditor_id = :customerId" +
+            ") AS combined_sums",
+            nativeQuery = true)
+    BigDecimal getFriendBalance(Long customerId, Long friendId);
 }

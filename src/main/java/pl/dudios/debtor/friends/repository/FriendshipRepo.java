@@ -13,12 +13,10 @@ import java.util.Optional;
 public interface FriendshipRepo extends JpaRepository<Friendship, Long> {
 
     @Query("SELECT c FROM Customer c " +
-            "JOIN Friendship f ON c.id = f.friend.id " +
-            "WHERE f.customer.id = :customerId AND f.status = 'ACCEPTED' " +
-            "UNION " +
-            "SELECT c FROM Customer c " +
-            "JOIN Friendship f ON c.id = f.customer.id " +
-            "WHERE f.friend.id = :customerId AND f.status = 'ACCEPTED'")
+            "JOIN Friendship f ON (c.id = f.friend.id AND f.customer.id = :customerId) " +
+            "OR (c.id = f.customer.id AND f.friend.id = :customerId) " +
+            "WHERE f.status = 'ACCEPTED' "+
+            "ORDER BY c.firstName, c.surname")
     Page<Customer> findFriendsByCustomerId(@Param("customerId") Long customerId, Pageable pageable);
 
     @Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END " +

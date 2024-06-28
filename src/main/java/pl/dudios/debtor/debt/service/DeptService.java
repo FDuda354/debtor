@@ -119,4 +119,9 @@ public class DeptService {
     public Long getCreditorCount(Long creditorId) {
         return deptRepository.countByCreditorIdAndStatusIs(creditorId, ACTIVE);
     }
+
+    public BigDecimal getFriendBalance(Long id, Long friendId) {
+        BigDecimal friendBalance = deptRepository.getFriendBalance(id, friendId);
+        return friendBalance == null ? BigDecimal.ZERO : friendBalance;
+    }
 }

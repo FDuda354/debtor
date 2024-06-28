@@ -24,6 +24,8 @@ import pl.dudios.debtor.friends.model.FriendShipStatus;
 import pl.dudios.debtor.friends.model.Friendship;
 import pl.dudios.debtor.friends.repository.FriendshipRepo;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -139,11 +141,9 @@ public class CustomerService {
         return false;
     }
 
-    public Page<CustomerDTO> getAllFriends(Long customerId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-
-        Page<Customer> friendsByCustomerId = friendshipRepo.findFriendsByCustomerId(customerId, pageable);
-        return friendsByCustomerId.map(CustomerMapper::mapToCustomerDTO);
+    public List<CustomerDTO> getAllFriends(Long customerId) {
+        List<Customer> friendsByCustomerId = friendshipRepo.findFriendsByCustomerId(customerId);
+        return friendsByCustomerId.stream().map(CustomerMapper::mapToCustomerDTO).limit(500).toList();
     }
 
     public void deleteFriend(Long customerId, Long friendId) {

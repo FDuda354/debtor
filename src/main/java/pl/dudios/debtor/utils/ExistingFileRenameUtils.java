@@ -12,7 +12,7 @@ public class ExistingFileRenameUtils {
     private final FileRepository fileRepository;
 
     public String renameFileIfExists(String fileName) {
-        if (fileRepository.existsById(fileName)) {
+        if (fileRepository.existsByFileName(fileName)) {
             return renameAndCheck(fileName);
         }
         return fileName;

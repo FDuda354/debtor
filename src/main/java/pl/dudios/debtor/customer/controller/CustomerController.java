@@ -42,9 +42,19 @@ public class CustomerController {
 
     @PostMapping("/image")
     public ResponseEntity<?> addOrUpdateProfileImage(@AuthenticationPrincipal Customer customer,
-                                                     @RequestParam("file") MultipartFile file) {
-        customerService.addProfileImage(customer.getId(), file);
+                                                     @RequestParam("image") MultipartFile image) {
+        customerService.addProfileImage(customer.getId(), image);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/image/customer")
+    public ResponseEntity<Resource> serveImage(@AuthenticationPrincipal Customer customer) throws IOException {
+        Customer user = customerService.getCustomerById(customer.getId());
+        Resource resource = imageService.serveFiles(user.getProfileImage());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(Path.of(user.getProfileImage())))
+                .body(resource);
     }
 
     @GetMapping("/image")

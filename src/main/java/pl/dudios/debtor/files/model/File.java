@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.dudios.debtor.transaction.model.Transaction;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -23,12 +26,17 @@ public class File {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transaction_id", nullable = false)
     private Transaction transaction;
+    private LocalDateTime uploadDate;
+    private Long size;
 
     @Override
     public String toString() {
         return "File{" +
                 "fileName='" + fileName + '\'' +
+                ", content=" + Arrays.toString(content) +
                 ", type='" + type + '\'' +
+                ", uploadDate=" + uploadDate +
+                ", size=" + size +
                 '}';
     }
 }

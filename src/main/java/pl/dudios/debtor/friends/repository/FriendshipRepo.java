@@ -20,14 +20,6 @@ public interface FriendshipRepo extends JpaRepository<Friendship, Long> {
             "ORDER BY c.firstName, c.surname")
     Page<Customer> findFriendsByCustomerId(@Param("customerId") Long customerId, Pageable pageable);
 
-    @Query("SELECT c FROM Customer c " +
-            "JOIN Friendship f ON (c.id = f.friend.id AND f.customer.id = :customerId) " +
-            "OR (c.id = f.customer.id AND f.friend.id = :customerId) " +
-            "WHERE f.status = 'ACCEPTED' "+
-            "ORDER BY c.firstName, c.surname " +
-            "LIMIT 500")
-    List<Customer> findFriendsByCustomerId(@Param("customerId") Long customerId);
-
     @Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END " +
             "FROM customer_friends cf " +
             "WHERE (cf.customer_id = :customerId AND cf.friend_id = :friendId) " +

@@ -18,6 +18,7 @@ import pl.dudios.debtor.utils.SlugifyUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 
 import static org.flywaydb.core.internal.util.StringUtils.getFileNameAndExtension;
 
@@ -31,9 +32,12 @@ public class ImageService {
     @CacheEvict(value = "images", key = "#newFileName")
     public Image uploadImageInternal(MultipartFile profileImage, String newFileName) throws RequestValidationException {
         try (InputStream inputStream = profileImage.getInputStream()) {
+            byte[] bytes = inputStream.readAllBytes();
             Image image = Image.builder()
                     .fileName(newFileName)
-                    .content(inputStream.readAllBytes())
+                    .content(bytes)
+                    .uploadDate(LocalDateTime.now())
+                    .size((long) bytes.length)
                     .type(getFileNameAndExtension(newFileName).getRight().toUpperCase())
                     .build();
             return imageRepository.save(image);
@@ -59,7 +63,6 @@ public class ImageService {
         return new ByteArrayResource(creditCardImage.getContent());
     }
 
-    @Transactional
     public void deleteImage(String cardImage) {
         imageRepository.deleteById(cardImage);
     }

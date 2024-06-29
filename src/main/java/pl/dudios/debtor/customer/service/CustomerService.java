@@ -99,10 +99,14 @@ public class CustomerService {
             throw new RequestValidationException("No changes provided");
     }
 
+    @Transactional
     public void addProfileImage(Long id, MultipartFile profileImage) {
         Customer customer = customerRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
         Image image = imageService.uploadImage(profileImage);
+        if(customer.getProfileImage() != null){
+            imageService.deleteImage(customer.getProfileImage());
+        }
         customer.setProfileImage(image.getFileName());
         customerRepo.save(customer);
     }
@@ -141,16 +145,11 @@ public class CustomerService {
         return false;
     }
 
-    public Page<CustomerDTO> getAllFriends(Long customerId, int page, int size) {
+    public Page<CustomerDTO> getFriends(Long customerId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Customer> friendsByCustomerId = friendshipRepo.findFriendsByCustomerId(customerId, pageable);
         return friendsByCustomerId.map(CustomerMapper::mapToCustomerDTO);
-    }
-
-    public List<CustomerDTO> getAllFriends(Long customerId) {
-        List<Customer> friendsByCustomerId = friendshipRepo.findFriendsByCustomerId(customerId);
-        return friendsByCustomerId.stream().map(CustomerMapper::mapToCustomerDTO).limit(500).toList();
     }
 
     public void deleteFriend(Long customerId, Long friendId) {

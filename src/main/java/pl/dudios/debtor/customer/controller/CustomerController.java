@@ -20,7 +20,6 @@ import pl.dudios.debtor.security.jwt.JwtUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -67,16 +66,10 @@ public class CustomerController {
     }
 
     @GetMapping("/friends")
-    public ResponseEntity<Page<CustomerDTO>> getAllFriends(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                           @RequestParam(value = "size", defaultValue = "10") int size,
-                                                           @AuthenticationPrincipal Customer customer) {
-        Page<CustomerDTO> friends = customerService.getAllFriends(customer.getId(), page, size);
-        return ResponseEntity.ok().body(friends);
-    }
-
-    @GetMapping("/friends/all")
-    public ResponseEntity<List<CustomerDTO>> getAllFriends(@AuthenticationPrincipal Customer customer) {
-        List<CustomerDTO> friends = customerService.getAllFriends(customer.getId());
+    public ResponseEntity<Page<CustomerDTO>> getFriends(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                        @RequestParam(value = "size", defaultValue = "10") int size,
+                                                        @AuthenticationPrincipal Customer customer) {
+        Page<CustomerDTO> friends = customerService.getFriends(customer.getId(), page, size);
         return ResponseEntity.ok().body(friends);
     }
 

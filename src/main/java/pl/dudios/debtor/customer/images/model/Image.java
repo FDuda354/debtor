@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -22,6 +24,8 @@ public class Image {
     @Lob
     private byte[] content;
     private String type;
+    private LocalDateTime uploadDate;
+    private Long size;
 
     @Override
     public String toString() {

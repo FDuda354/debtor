@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import pl.dudios.debtor.customer.images.service.ImageService;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.CustomerDTO;
 import pl.dudios.debtor.customer.service.CustomerService;
@@ -32,7 +31,6 @@ import java.util.Objects;
 public class CustomerController {
 
     private final CustomerService customerService;
-    private final ImageService imageService;
     private final JwtUtil jwtUtil;
 
     @GetMapping("/details")

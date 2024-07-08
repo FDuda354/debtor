@@ -1,28 +1,15 @@
 package pl.dudios.debtor.utils;
 
-import com.github.javafaker.Faker;
-import com.github.javafaker.Name;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import pl.dudios.debtor.customer.controller.CustomerRequest;
-import pl.dudios.debtor.customer.model.Customer;
-import pl.dudios.debtor.customer.model.Gender;
-import pl.dudios.debtor.customer.model.Role;
 import pl.dudios.debtor.customer.repository.CustomerRepo;
 import pl.dudios.debtor.customer.service.CustomerService;
-import pl.dudios.debtor.debt.controller.DebtRequest;
-import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.service.DeptService;
-import pl.dudios.debtor.transaction.controller.TransactionRequest;
 import pl.dudios.debtor.transaction.service.TransactionService;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 
 @Slf4j
 @Component

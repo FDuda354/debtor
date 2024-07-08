@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.friends.model.Friendship;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface FriendshipRepo extends JpaRepository<Friendship, Long> {
@@ -16,7 +15,7 @@ public interface FriendshipRepo extends JpaRepository<Friendship, Long> {
     @Query("SELECT c FROM Customer c " +
             "JOIN Friendship f ON (c.id = f.friend.id AND f.customer.id = :customerId) " +
             "OR (c.id = f.customer.id AND f.friend.id = :customerId) " +
-            "WHERE f.status = 'ACCEPTED' "+
+            "WHERE f.status = 'ACCEPTED' " +
             "ORDER BY c.firstName, c.surname")
     Page<Customer> findFriendsByCustomerId(@Param("customerId") Long customerId, Pageable pageable);
 

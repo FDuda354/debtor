@@ -9,7 +9,7 @@ import pl.dudios.debtor.files.model.File;
 public interface FileRepository extends JpaRepository<File, String> {
     @Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END " +
             "FROM images i " +
-            "WHERE i.file_name = :fileName " ,
+            "WHERE i.file_name = :fileName ",
             nativeQuery = true)
     Boolean existsByFileName(String fileName);
 }

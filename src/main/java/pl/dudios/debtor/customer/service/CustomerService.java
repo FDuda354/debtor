@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import pl.dudios.debtor.customer.CustomerMapper;
+import pl.dudios.debtor.utils.mappers.CustomerMapper;
 import pl.dudios.debtor.customer.controller.CustomerRequest;
 import pl.dudios.debtor.customer.images.model.Image;
 import pl.dudios.debtor.customer.images.service.ImageService;
@@ -21,9 +21,9 @@ import pl.dudios.debtor.customer.repository.CustomerRepo;
 import pl.dudios.debtor.exception.DuplicateResourceException;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
-import pl.dudios.debtor.friends.model.FriendShipStatus;
-import pl.dudios.debtor.friends.model.Friendship;
-import pl.dudios.debtor.friends.repository.FriendshipRepo;
+import pl.dudios.debtor.customer.friends.model.FriendShipStatus;
+import pl.dudios.debtor.customer.friends.model.Friendship;
+import pl.dudios.debtor.customer.friends.repository.FriendshipRepo;
 
 import java.util.Objects;
 
@@ -121,7 +121,7 @@ public class CustomerService {
     public Friendship addFriend(Long customerId, String email) {
         Customer customer = customerRepo.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + customerId + " not found"));
-        Customer newFriend = customerRepo.findByEmail(email)
+        Customer newFriend = customerRepo.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with email: " + email + " not found"));
 
         if (cantBeFriends(customer, newFriend)) {

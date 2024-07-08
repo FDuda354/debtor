@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.CustomerDTO;
 import pl.dudios.debtor.customer.service.CustomerService;
-import pl.dudios.debtor.friends.model.Friendship;
+import pl.dudios.debtor.customer.friends.model.Friendship;
 import pl.dudios.debtor.security.jwt.JwtUtil;
 
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package pl.dudios.debtor.customer;
+package pl.dudios.debtor.utils.mappers;
 
 import lombok.experimental.UtilityClass;
 import pl.dudios.debtor.customer.model.Customer;

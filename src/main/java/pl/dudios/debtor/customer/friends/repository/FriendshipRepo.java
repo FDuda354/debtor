@@ -1,12 +1,12 @@
-package pl.dudios.debtor.friends.repository;
+package pl.dudios.debtor.customer.friends.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import pl.dudios.debtor.customer.friends.model.Friendship;
 import pl.dudios.debtor.customer.model.Customer;
-import pl.dudios.debtor.friends.model.Friendship;
 
 import java.util.Optional;
 

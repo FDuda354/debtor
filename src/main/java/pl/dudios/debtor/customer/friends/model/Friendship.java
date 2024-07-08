@@ -1,4 +1,4 @@
-package pl.dudios.debtor.friends.model;
+package pl.dudios.debtor.customer.friends.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

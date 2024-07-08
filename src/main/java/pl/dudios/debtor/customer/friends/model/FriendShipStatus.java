@@ -1,4 +1,4 @@
-package pl.dudios.debtor.friends.model;
+package pl.dudios.debtor.customer.friends.model;
 
 public enum FriendShipStatus {
 

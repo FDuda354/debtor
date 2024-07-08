@@ -1,8 +1,6 @@
 package pl.dudios.debtor.customer.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -33,14 +31,13 @@ import java.util.Objects;
 @RequestMapping("/api/customers")
 public class CustomerController {
 
-    private static final Logger log = LoggerFactory.getLogger(CustomerController.class);
     private final CustomerService customerService;
     private final ImageService imageService;
     private final JwtUtil jwtUtil;
 
     @GetMapping("/details")
     public ResponseEntity<?> getCustomerDetails(@AuthenticationPrincipal Customer customer) {
-        CustomerDTO customerDTO =  customerService.getCustomerDTOById(customer.getId());
+        CustomerDTO customerDTO = customerService.getCustomerDTOById(customer.getId());
         return ResponseEntity.ok().body(customerDTO);
     }
 

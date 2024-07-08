@@ -2,6 +2,7 @@ package pl.dudios.debtor.customer.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +25,7 @@ import pl.dudios.debtor.friends.model.FriendShipStatus;
 import pl.dudios.debtor.friends.model.Friendship;
 import pl.dudios.debtor.friends.repository.FriendshipRepo;
 
-import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -38,6 +39,11 @@ public class CustomerService {
 
     public Customer getCustomerById(final Long id) {
         return customerRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
+    }
+
+    public CustomerDTO getCustomerDTOById(final Long id) {
+        return customerRepo.findById(id).map(CustomerMapper::mapToCustomerDTO)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
     }
 
@@ -104,7 +110,7 @@ public class CustomerService {
         Customer customer = customerRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
         Image image = imageService.uploadImage(profileImage);
-        if(customer.getProfileImage() != null){
+        if (customer.getProfileImage() != null) {
             imageService.deleteImage(customer.getProfileImage());
         }
         customer.setProfileImage(image.getFileName());
@@ -157,4 +163,18 @@ public class CustomerService {
         Friendship friendship = friendshipRepo.findByCustomerIdAndFriendId(customerId, friendId).orElseThrow(() -> new ResourceNotFoundException("Friendship with customerId: " + customerId + " and " + friendId + " not found"));
         friendshipRepo.deleteById(friendship.getId());
     }
+
+    public Resource getProfileImage(String customerImage, String paramCustomerImage) {
+        if (Objects.nonNull(paramCustomerImage)) {
+            return imageService.serveFiles(paramCustomerImage);
+        } else if (Objects.nonNull(customerImage)) {
+            return imageService.serveFiles(customerImage);
+
+        } else {
+            log.error("no image name provided");
+            throw new ResourceNotFoundException("no image name provided");
+        }
+
+    }
+
 }

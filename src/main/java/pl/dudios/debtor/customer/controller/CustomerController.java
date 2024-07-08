@@ -8,7 +8,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import pl.dudios.debtor.customer.images.service.ImageService;
 import pl.dudios.debtor.customer.model.Customer;
@@ -20,6 +26,7 @@ import pl.dudios.debtor.security.jwt.JwtUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +37,12 @@ public class CustomerController {
     private final CustomerService customerService;
     private final ImageService imageService;
     private final JwtUtil jwtUtil;
+
+    @GetMapping("/details")
+    public ResponseEntity<?> getCustomerDetails(@AuthenticationPrincipal Customer customer) {
+        CustomerDTO customerDTO =  customerService.getCustomerDTOById(customer.getId());
+        return ResponseEntity.ok().body(customerDTO);
+    }
 
     @PostMapping
     public ResponseEntity<?> addCustomer(@RequestBody CustomerRequest request) {
@@ -46,22 +59,14 @@ public class CustomerController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/image/customer")
-    public ResponseEntity<Resource> serveImage(@AuthenticationPrincipal Customer customer) throws IOException {
-        Customer user = customerService.getCustomerById(customer.getId());
-        Resource resource = imageService.serveFiles(user.getProfileImage());
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(Path.of(user.getProfileImage())))
-                .body(resource);
-    }
-
     @GetMapping("/image")
-    public ResponseEntity<Resource> serveImage(@RequestParam("customerImage") String customerImage) throws IOException {
-        Resource resource = imageService.serveFiles(customerImage);
+    public ResponseEntity<Resource> serveImage(@AuthenticationPrincipal Customer customer,
+                                               @RequestParam(value = "customerImage", required = false) String customerImage) throws IOException {
+
+        Resource resource = customerService.getProfileImage(customer.getProfileImage(), customerImage);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(Path.of(customerImage)))
+                .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(Path.of(Objects.isNull(customerImage) ? customer.getProfileImage() : customerImage)))
                 .body(resource);
     }
 

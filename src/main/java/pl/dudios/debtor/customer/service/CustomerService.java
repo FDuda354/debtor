@@ -148,6 +148,11 @@ public class CustomerService {
             return true;
         }
 
+        if(friendshipRepo.countFriendsByCustomerId(customer.getId()) > 400){
+            log.error("Friends list overload");
+            return true;
+        }
+
         return false;
     }
 

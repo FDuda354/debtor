@@ -29,4 +29,10 @@ public interface FriendshipRepo extends JpaRepository<Friendship, Long> {
     @Query("SELECT f FROM Friendship f " +
             "WHERE (f.customer.id = :customerId AND f.friend.id = :friendId) OR (f.customer.id = :friendId AND f.friend.id = :customerId) AND f.status = 'ACCEPTED' ")
     Optional<Friendship> findByCustomerIdAndFriendId(Long customerId, Long friendId);
+
+    @Query(value = "SELECT COUNT(*) " +
+            "FROM customer_friends cf " +
+            "WHERE (cf.customer_id = :customerId OR cf.friend_id = :customerId)",
+            nativeQuery = true)
+    Long countFriendsByCustomerId(Long customerId);
 }

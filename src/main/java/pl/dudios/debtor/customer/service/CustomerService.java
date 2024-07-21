@@ -42,6 +42,11 @@ public class CustomerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
     }
 
+    public Customer getCustomerByEmail(final String email) {
+        return customerRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with email: " + email + " not found"));
+    }
+
     public CustomerDTO getCustomerDTOById(final Long id) {
         return customerRepo.findById(id).map(CustomerMapper::mapToCustomerDTO)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));

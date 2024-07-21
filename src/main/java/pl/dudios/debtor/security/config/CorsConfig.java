@@ -21,7 +21,7 @@ public class CorsConfig {
     private List<String> allowedHeaders;
 
     @Value("#{'${cors.exposed-headers}'.split(',')}")
-    private List<String> expectedHeaders;
+    private List<String> exposedHeaders;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -29,9 +29,11 @@ public class CorsConfig {
         configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(allowedMethods);
         configuration.setAllowedHeaders(allowedHeaders);
-        configuration.setExposedHeaders(expectedHeaders);
+        configuration.setExposedHeaders(exposedHeaders);
+        configuration.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }

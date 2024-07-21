@@ -31,6 +31,7 @@ public class SecurityFilterChainConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.POST, "/api/customers").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManagement ->
@@ -44,4 +45,5 @@ public class SecurityFilterChainConfig {
 
         return http.build();
     }
+
 }

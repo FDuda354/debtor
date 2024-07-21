@@ -21,21 +21,22 @@ public class NotificationService {
     private final CustomerService customerService;
 
     public void notify(Notification notification) {
-        notification.setStatus(Status.UNREAD);
-        notification.setDate(LocalDateTime.now());
+        prepareNotification(notification);
         messagingTemplate.convertAndSend("/all/messages", notification.getMessage());
-        //notificationRepository.save(notification);
+        notificationRepository.save(notification);
     }
 
     public void notifyUser(String email, Notification notification) {
+        prepareNotification(notification);
+        notification.setCustomer(customerService.getCustomerByEmail(email));
+        messagingTemplate.convertAndSendToUser(notification.getCustomer().getEmail(), "/one/messages", notification.getMessage());
+        notificationRepository.save(notification);
 
+    }
+
+    private void prepareNotification(Notification notification) {
         notification.setStatus(Status.UNREAD);
         notification.setDate(LocalDateTime.now());
-        notification.setCustomer(customerService.getCustomerByEmail(email));
-        log.info("Wysyłanie wiadomości do: " + email);
-        messagingTemplate.convertAndSendToUser(notification.getCustomer().getEmail(), "/all/messages", notification.getMessage());
-        //notificationRepository.save(notification);
-
     }
 
 

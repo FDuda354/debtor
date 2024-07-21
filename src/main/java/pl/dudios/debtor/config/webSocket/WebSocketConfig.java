@@ -18,7 +18,7 @@ import java.util.List;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Autowired
-    private CustomChannelInterceptor customChannelInterceptor;
+    private JwtChannelInterceptor jwtChannelInterceptor;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -35,7 +35,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new SecurityContextChannelInterceptor(), customChannelInterceptor);
+        registration.interceptors(new SecurityContextChannelInterceptor(), jwtChannelInterceptor);
     }
 
     @Override

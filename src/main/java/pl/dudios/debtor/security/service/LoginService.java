@@ -8,7 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dudios.debtor.utils.mappers.CustomerMapper;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.CustomerDTO;
 import pl.dudios.debtor.customer.service.CustomerService;
@@ -16,6 +15,7 @@ import pl.dudios.debtor.security.jwt.JwtUtil;
 import pl.dudios.debtor.security.model.AuthRequest;
 import pl.dudios.debtor.security.model.AuthResponse;
 import pl.dudios.debtor.security.model.ResetPassRequest;
+import pl.dudios.debtor.utils.mappers.CustomerMapper;
 
 @Slf4j
 @Service

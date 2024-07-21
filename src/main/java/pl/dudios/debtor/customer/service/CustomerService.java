@@ -10,8 +10,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import pl.dudios.debtor.utils.mappers.CustomerMapper;
 import pl.dudios.debtor.customer.controller.CustomerRequest;
+import pl.dudios.debtor.customer.friends.model.FriendShipStatus;
+import pl.dudios.debtor.customer.friends.model.Friendship;
+import pl.dudios.debtor.customer.friends.repository.FriendshipRepo;
 import pl.dudios.debtor.customer.images.model.Image;
 import pl.dudios.debtor.customer.images.service.ImageService;
 import pl.dudios.debtor.customer.model.Customer;
@@ -21,9 +23,7 @@ import pl.dudios.debtor.customer.repository.CustomerRepo;
 import pl.dudios.debtor.exception.DuplicateResourceException;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
-import pl.dudios.debtor.customer.friends.model.FriendShipStatus;
-import pl.dudios.debtor.customer.friends.model.Friendship;
-import pl.dudios.debtor.customer.friends.repository.FriendshipRepo;
+import pl.dudios.debtor.utils.mappers.CustomerMapper;
 
 import java.util.Objects;
 
@@ -153,7 +153,7 @@ public class CustomerService {
             return true;
         }
 
-        if(friendshipRepo.countFriendsByCustomerId(customer.getId()) > 400){
+        if (friendshipRepo.countFriendsByCustomerId(customer.getId()) > 400) {
             log.error("Friends list overload");
             return true;
         }

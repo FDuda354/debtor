@@ -8,13 +8,14 @@ import lombok.NoArgsConstructor;
 import pl.dudios.debtor.customer.model.Customer;
 
 import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 
 @Entity
-@Table(name ="NOTIFICATIONS")
+@Table(name = "NOTIFICATIONS")
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

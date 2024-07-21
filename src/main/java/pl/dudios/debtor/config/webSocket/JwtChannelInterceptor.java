@@ -2,7 +2,6 @@ package pl.dudios.debtor.config.webSocket;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -36,14 +35,17 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
 
             if (authToken != null && authToken.startsWith(PREFIX)) {
                 String jwt = authToken.substring(PREFIX.length());
-                String username = jwtUtil.getSubject(jwt);
+                String subject = jwtUtil.getSubject(jwt);
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                if (jwtUtil.isTokenValid(jwt, userDetails.getUsername())) {
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    accessor.setUser(authenticationToken);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
+
+                    if (jwtUtil.isTokenValid(jwt, userDetails.getUsername())) {
+                        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                        accessor.setUser(authenticationToken);
+                    }
                 }
 
             }

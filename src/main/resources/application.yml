@@ -35,7 +35,7 @@ logging:
     org.springframework.web.socket: DEBUG
     org.springframework.security: DEBUG
 cors:
-  allowed-origins: "http://localhost:4200"
+  allowed-origins: "http://localhost:4200,https://dluznik-test.dudios.pl,https://dluznik.dudios.pl"
   allowed-methods: "*"
   allowed-headers: "*"
   exposed-headers: "*"

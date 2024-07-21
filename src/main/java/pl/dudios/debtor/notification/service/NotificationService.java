@@ -10,6 +10,7 @@ import pl.dudios.debtor.notification.model.Status;
 import pl.dudios.debtor.notification.repo.NotificationRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -39,5 +40,16 @@ public class NotificationService {
         notification.setDate(LocalDateTime.now());
     }
 
+    public List<Notification> getLastNotificationsByCustomerId(Long customer_id) {
+        return notificationRepository.getLastNotificationsByCustomerId(customer_id);
+    }
 
+    public Long getUnreadNotificationsCountByCustomerId(Long customer_id) {
+        return notificationRepository.getUnreadNotificationsCountByCustomerId(customer_id);
+    }
+
+    public void readNotificationsByCustomerId(Long customer_id) {
+        notificationRepository.readNotificationsByCustomerId(customer_id);
+
+    }
 }

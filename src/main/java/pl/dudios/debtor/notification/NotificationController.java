@@ -20,10 +20,10 @@ public class NotificationController {
 //        return "Powiadomienie - " + message;
 //    }
 //
-//    @MessageMapping("/private")
-//    public void sendNotificationys(@Payload String message) {
-//        messagingTemplate.convertAndSendToUser("filipduda9@icloud.com", "/specific", message);
-//        System.out.println("Sending private notification: " + message);
-//    }
+    @MessageMapping("/private")
+    public void sendNotificationToUser(@Payload String message) {
+        messagingTemplate.convertAndSendToUser("filipduda9@icloud.com", "/one/messages", message);
+        System.out.println("Sending private notification: " + message);
+    }
 
 }

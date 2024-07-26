@@ -3,7 +3,9 @@ package pl.dudios.debtor.notification.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import pl.dudios.debtor.customer.repository.CustomerRepo;
 import pl.dudios.debtor.customer.service.CustomerService;
 import pl.dudios.debtor.notification.model.Notification;
 import pl.dudios.debtor.notification.model.Status;
@@ -19,7 +21,7 @@ public class NotificationService {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final NotificationRepository notificationRepository;
-    private final CustomerService customerService;
+    private final CustomerRepo customerRepo;
 
     public void notify(Notification notification) {
         prepareNotification(notification);
@@ -29,7 +31,7 @@ public class NotificationService {
 
     public void notifyUser(String email, Notification notification) {
         prepareNotification(notification);
-        notification.setCustomer(customerService.getCustomerByEmail(email));
+        notification.setCustomer(customerRepo.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User with email " + email + " not found")));
         messagingTemplate.convertAndSendToUser(notification.getCustomer().getEmail(), "/one/messages", notification);
         notificationRepository.save(notification);
 

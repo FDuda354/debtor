@@ -15,6 +15,8 @@ import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
 import pl.dudios.debtor.files.model.File;
 import pl.dudios.debtor.files.service.FileService;
+import pl.dudios.debtor.notification.model.Notification;
+import pl.dudios.debtor.notification.service.NotificationService;
 import pl.dudios.debtor.transaction.controller.TransactionRequest;
 import pl.dudios.debtor.transaction.model.Transaction;
 import pl.dudios.debtor.transaction.repo.TransactionRepository;
@@ -31,6 +33,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final DeptRepository deptRepository;
     private final FileService fileService;
+    private final NotificationService notificationService;
 
     public void addTransaction(TransactionRequest request) {
         Debt debt = deptRepository.findById(request.debtId())
@@ -62,15 +65,9 @@ public class TransactionService {
             debt.setStatus(DebtStatus.FINISHED);
         }
 
+        notificationService.notifyUser(debt.getCreditor().getEmail(), new Notification(debt.getDebtor().getEmail()+" włacił "+request.amount()));
+
         transactionRepository.save(transaction);
-    }
-
-    private boolean debtIsPaid(Debt debt) {
-        BigDecimal transactionsAmount = debt.getTransactions().stream()
-                .map(Transaction::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return transactionsAmount.compareTo(debt.getAmount()) >= 0;
     }
 
     public void addTransactionFiles(Long transactionId, List<MultipartFile> files) {

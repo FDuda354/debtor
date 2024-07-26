@@ -23,6 +23,8 @@ import pl.dudios.debtor.customer.repository.CustomerRepo;
 import pl.dudios.debtor.exception.DuplicateResourceException;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
+import pl.dudios.debtor.notification.model.Notification;
+import pl.dudios.debtor.notification.service.NotificationService;
 import pl.dudios.debtor.utils.mappers.CustomerMapper;
 
 import java.util.Objects;
@@ -36,6 +38,7 @@ public class CustomerService {
     private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
     private final FriendshipRepo friendshipRepo;
+    private final NotificationService notificationService;
 
     public Customer getCustomerById(final Long id) {
         return customerRepo.findById(id)
@@ -139,6 +142,7 @@ public class CustomerService {
                 .status(FriendShipStatus.ACCEPTED) //TODO Change as REQUESTED
                 .build();
 
+        notificationService.notifyUser(email, new Notification(customer.getEmail() + " dodał cię do znajomych"));
         return friendshipRepo.save(friendship);
     }
 

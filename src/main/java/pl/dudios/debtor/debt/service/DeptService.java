@@ -17,6 +17,8 @@ import pl.dudios.debtor.debt.model.DebtDTO;
 import pl.dudios.debtor.debt.repo.DeptRepository;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
+import pl.dudios.debtor.notification.model.Notification;
+import pl.dudios.debtor.notification.service.NotificationService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,6 +35,7 @@ public class DeptService {
 
     private final DeptRepository deptRepository;
     private final CustomerRepo customerRepo;
+    private final NotificationService notificationService;
 
     public Debt getDebtById(Long debtId) {
         return deptRepository.findById(debtId)
@@ -40,7 +43,7 @@ public class DeptService {
     }
 
 
-    public Debt addDebt(DebtRequest request) {
+    public void addDebt(DebtRequest request) {
         if (request.debtorEmail() == null || request.debtorEmail().equalsIgnoreCase(request.creditorEmail())) {
             throw new RequestValidationException("debtor mail and creditor email are the same");
         }
@@ -60,7 +63,10 @@ public class DeptService {
                 .status(ACTIVE)
                 .build();
 
-        return deptRepository.save(debt);
+        deptRepository.save(debt);
+        notificationService.notifyUser(request.debtorEmail(), new Notification("Masz nowy dług u "+ request.creditorEmail()));
+        notificationService.notifyUser(request.creditorEmail(), new Notification(request.debtorEmail()+ " ma u ciebie nowy dług"));
+
     }
 
     @Transactional
@@ -68,7 +74,7 @@ public class DeptService {
         Debt debt = deptRepository.findById(debtId).orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
         if (debt.getStatus().equals(ACTIVE)) {
             debt.setStatus(CANCELLED);
-
+            notificationService.notifyUser(debt.getDebtor().getEmail(), new Notification("Anulowano twój dług u " + debt.getCreditor().getEmail()));
         }
     }
 
@@ -76,6 +82,8 @@ public class DeptService {
     public void reactiveDebt(Long debtId) {
         Debt debt = deptRepository.findById(debtId).orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
         debt.setStatus(ACTIVE);
+        notificationService.notifyUser(debt.getDebtor().getEmail(), new Notification("Anulowano twój dług u " + debt.getCreditor().getEmail() + " został reaktywowany."));
+
     }
 
     public Page<DebtDTO> getDebtsByDebtorId(Long debtorId, int page, int size, boolean onlyActive) {

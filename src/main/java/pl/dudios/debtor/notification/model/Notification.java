@@ -27,4 +27,8 @@ public class Notification {
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
+
+    public Notification(String message) {
+        this.message = message;
+    }
 }

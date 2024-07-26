@@ -24,7 +24,6 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getLastNotificationsByCustomerId(customer.getId()));
     }
 
-
     @PostMapping("/read/user")
     public ResponseEntity<Void> readNotificationsByUserId(@AuthenticationPrincipal Customer customer) {
         notificationService.readNotificationsByCustomerId(customer.getId());
@@ -36,4 +35,5 @@ public class NotificationController {
         notificationService.deleteNotificationById(id);
         return ResponseEntity.noContent().build();
     }
+
 }

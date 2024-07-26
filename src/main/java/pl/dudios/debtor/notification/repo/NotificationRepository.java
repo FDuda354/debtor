@@ -30,11 +30,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "LIMIT 100", nativeQuery = true)
     List<Notification> getLastNotificationsByCustomerId(Long customerId);
 
-    @Query(value = "SELECT COUNT(*) FROM NOTIFICATIONS " +
-            "WHERE (customer_id IS NULL OR customer_id = :customerId) " +
-            "AND status = 'UNREAD'", nativeQuery = true)
-    Long getUnreadNotificationsCountByCustomerId(Long customerId);
-
     @Modifying
     @Transactional
     @Query(value = "UPDATE NOTIFICATIONS SET status = 'READ' WHERE customer_id = :customerId", nativeQuery = true)

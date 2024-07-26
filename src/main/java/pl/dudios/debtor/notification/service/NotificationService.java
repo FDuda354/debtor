@@ -23,14 +23,14 @@ public class NotificationService {
 
     public void notify(Notification notification) {
         prepareNotification(notification);
-        messagingTemplate.convertAndSend("/all/messages", notification.getMessage());
+        messagingTemplate.convertAndSend("/all/messages", notification);
         notificationRepository.save(notification);
     }
 
     public void notifyUser(String email, Notification notification) {
         prepareNotification(notification);
         notification.setCustomer(customerService.getCustomerByEmail(email));
-        messagingTemplate.convertAndSendToUser(notification.getCustomer().getEmail(), "/one/messages", notification.getMessage());
+        messagingTemplate.convertAndSendToUser(notification.getCustomer().getEmail(), "/one/messages", notification);
         notificationRepository.save(notification);
 
     }
@@ -44,12 +44,12 @@ public class NotificationService {
         return notificationRepository.getLastNotificationsByCustomerId(customer_id);
     }
 
-    public Long getUnreadNotificationsCountByCustomerId(Long customer_id) {
-        return notificationRepository.getUnreadNotificationsCountByCustomerId(customer_id);
-    }
-
     public void readNotificationsByCustomerId(Long customer_id) {
         notificationRepository.readNotificationsByCustomerId(customer_id);
 
+    }
+
+    public void deleteNotificationById(Long id) {
+        notificationRepository.deleteById(id);
     }
 }

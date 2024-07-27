@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.dudios.debtor.debt.model.Debt;
-import pl.dudios.debtor.files.model.File;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -42,6 +41,5 @@ public class Transaction {
     private BigDecimal balanceAfterTransaction;
     private String description;
     private LocalDateTime paymentDate;
-    @OneToMany(mappedBy = "transaction", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<File> files;
+
 }

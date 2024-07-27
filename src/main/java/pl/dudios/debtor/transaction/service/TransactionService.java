@@ -13,8 +13,7 @@ import pl.dudios.debtor.debt.model.DebtStatus;
 import pl.dudios.debtor.debt.repo.DeptRepository;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
-import pl.dudios.debtor.files.model.File;
-import pl.dudios.debtor.files.service.FileService;
+
 import pl.dudios.debtor.notification.model.Notification;
 import pl.dudios.debtor.notification.service.NotificationService;
 import pl.dudios.debtor.transaction.controller.TransactionRequest;
@@ -32,7 +31,6 @@ import java.util.List;
 public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final DeptRepository deptRepository;
-    private final FileService fileService;
     private final NotificationService notificationService;
 
     public void addTransaction(TransactionRequest request) {
@@ -55,7 +53,6 @@ public class TransactionService {
                 .balanceAfterTransaction(debt.getAmount().subtract(request.amount()))
                 .description(request.description())
                 .paymentDate(LocalDateTime.now())
-                .files(request.files())
                 .build();
 
         debt.getTransactions().add(transaction);
@@ -68,21 +65,6 @@ public class TransactionService {
         notificationService.notifyUser(debt.getCreditor().getEmail(), new Notification(debt.getDebtor().getEmail()+" włacił "+request.amount()));
 
         transactionRepository.save(transaction);
-    }
-
-    public void addTransactionFiles(Long transactionId, List<MultipartFile> files) {
-        List<File> filesToSave = new ArrayList<>();
-        for (MultipartFile file : files) {
-            filesToSave.add(fileService.uploadFile(file));
-        }
-        Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Transaction with id: " + transactionId + " not found"));
-
-        if (transaction.getFiles() == null) {
-            transaction.setFiles(new ArrayList<>());
-        }
-        transaction.getFiles().addAll(filesToSave);
-
     }
 
     public Page<Transaction> getTransactionsByDebtId(Long debtId, int page, int size) {

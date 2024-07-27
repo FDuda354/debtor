@@ -14,7 +14,6 @@ import pl.dudios.debtor.customer.controller.CustomerRequest;
 import pl.dudios.debtor.customer.friends.model.FriendShipStatus;
 import pl.dudios.debtor.customer.friends.model.Friendship;
 import pl.dudios.debtor.customer.friends.repository.FriendshipRepo;
-import pl.dudios.debtor.customer.images.service.ImageService;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.CustomerDTO;
 import pl.dudios.debtor.customer.model.Role;
@@ -38,7 +37,6 @@ public class CustomerService {
 
     private static final String IMAGE_RESOURCE = "profile-images";
     private final CustomerRepo customerRepo;
-    private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
     private final FriendshipRepo friendshipRepo;
     private final NotificationService notificationService;

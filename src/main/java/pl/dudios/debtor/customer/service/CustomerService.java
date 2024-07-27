@@ -1,8 +1,8 @@
 package pl.dudios.debtor.customer.service;
 
+import com.google.cloud.storage.Blob;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +14,6 @@ import pl.dudios.debtor.customer.controller.CustomerRequest;
 import pl.dudios.debtor.customer.friends.model.FriendShipStatus;
 import pl.dudios.debtor.customer.friends.model.Friendship;
 import pl.dudios.debtor.customer.friends.repository.FriendshipRepo;
-import pl.dudios.debtor.customer.images.model.Image;
 import pl.dudios.debtor.customer.images.service.ImageService;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.CustomerDTO;
@@ -25,20 +24,25 @@ import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
 import pl.dudios.debtor.notification.model.Notification;
 import pl.dudios.debtor.notification.service.NotificationService;
+import pl.dudios.debtor.storage.service.GoogleStorageService;
 import pl.dudios.debtor.utils.mappers.CustomerMapper;
 
+import java.io.IOException;
 import java.util.Objects;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomerService {
 
+    private static final String IMAGE_RESOURCE = "profile-images";
     private final CustomerRepo customerRepo;
     private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
     private final FriendshipRepo friendshipRepo;
     private final NotificationService notificationService;
+    private final GoogleStorageService googleStorageService;
 
     public Customer getCustomerById(final Long id) {
         return customerRepo.findById(id)
@@ -113,17 +117,6 @@ public class CustomerService {
             throw new RequestValidationException("No changes provided");
     }
 
-    @Transactional
-    public void addProfileImage(Long id, MultipartFile profileImage) {
-        Customer customer = customerRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
-        Image image = imageService.uploadImage(profileImage);
-        if (customer.getProfileImage() != null) {
-            imageService.deleteImage(customer.getProfileImage());
-        }
-        customer.setProfileImage(image.getFileName());
-        customerRepo.save(customer);
-    }
 
     @Transactional
     public Friendship addFriend(Long customerId, String email) {
@@ -178,17 +171,36 @@ public class CustomerService {
         friendshipRepo.deleteById(friendship.getId());
     }
 
-    public Resource getProfileImage(String customerImage, String paramCustomerImage) {
-        if (Objects.nonNull(paramCustomerImage)) {
-            return imageService.serveFiles(paramCustomerImage);
-        } else if (Objects.nonNull(customerImage)) {
-            return imageService.serveFiles(customerImage);
+    @Transactional
+    public void addProfileImage(Long customerId, MultipartFile image) {
+        Customer customer = getCustomerById(customerId);
+        if (customer.getProfileImage() != null) {
+            googleStorageService.deleteFile((IMAGE_RESOURCE + "/%s").formatted(customer.getProfileImage()));
+        }
+        String newImageId = UUID.randomUUID().toString();
+        try {
+            googleStorageService.uploadFile(
+                    (IMAGE_RESOURCE + "/%s").formatted(newImageId),
+                    image
+            );
+        } catch (IOException e) {
+            log.error("Error while uploading profile image", e);
+            throw new RuntimeException(e);
+        }
 
+        customer.setProfileImage(newImageId);
+        customerRepo.save(customer);
+
+    }
+
+    public Blob getProfileImage2(String customerImage, String paramCustomerImage) {
+        String finalImageId = Objects.nonNull(paramCustomerImage) ? paramCustomerImage : customerImage;
+
+        if (Objects.nonNull(finalImageId)) {
+            return googleStorageService.downloadFile((IMAGE_RESOURCE + "/%s").formatted(finalImageId));
         } else {
             log.error("no image name provided");
             throw new ResourceNotFoundException("no image name provided");
         }
-
     }
-
 }

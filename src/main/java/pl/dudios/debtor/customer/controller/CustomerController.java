@@ -1,9 +1,10 @@
 package pl.dudios.debtor.customer.controller;
 
+import com.google.cloud.storage.Blob;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -13,11 +14,6 @@ import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.CustomerDTO;
 import pl.dudios.debtor.customer.service.CustomerService;
 import pl.dudios.debtor.security.jwt.JwtUtil;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,7 +37,7 @@ public class CustomerController {
         return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, token).build();
     }
 
-    @PostMapping("/image")
+    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addOrUpdateProfileImage(@AuthenticationPrincipal Customer customer,
                                                      @RequestParam("image") MultipartFile image) {
         customerService.addProfileImage(customer.getId(), image);
@@ -49,14 +45,16 @@ public class CustomerController {
     }
 
     @GetMapping("/image")
-    public ResponseEntity<Resource> serveImage(@AuthenticationPrincipal Customer customer,
-                                               @RequestParam(value = "customerImage", required = false) String customerImage) throws IOException {
+    public ResponseEntity<byte[]> serveImage(@AuthenticationPrincipal Customer customer,
+                                             @RequestParam(value = "customerImage", required = false) String customerImage) {
 
-        Resource resource = customerService.getProfileImage(customer.getProfileImage(), customerImage);
+        Blob blob = customerService.getProfileImage2(customer.getProfileImage(), customerImage);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(Path.of(Objects.isNull(customerImage) ? customer.getProfileImage() : customerImage)))
-                .body(resource);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + blob.getName() + "\"")
+                .contentType(MediaType.parseMediaType(blob.getContentType()))
+                .contentLength(blob.getSize())
+                .body(blob.getContent());
     }
 
     @GetMapping("/friends")

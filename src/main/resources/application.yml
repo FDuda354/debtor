@@ -39,3 +39,7 @@ cors:
   allowed-methods: "*"
   allowed-headers: "*"
   exposed-headers: "*"
+gcp:
+  credentials:
+    location: classpath:dluznik-90dc57008fa3.json
+  project-id: ${PROJECT_ID}

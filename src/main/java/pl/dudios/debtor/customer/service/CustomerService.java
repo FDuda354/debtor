@@ -3,6 +3,8 @@ package pl.dudios.debtor.customer.service;
 import com.google.cloud.storage.Blob;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -170,6 +172,7 @@ public class CustomerService {
     }
 
     @Transactional
+    @CacheEvict(value = "images", key = "#customerId")
     public void addProfileImage(Long customerId, MultipartFile image) {
         Customer customer = getCustomerById(customerId);
         if (customer.getProfileImage() != null) {
@@ -191,6 +194,7 @@ public class CustomerService {
 
     }
 
+    @Cacheable("images")
     public Blob getProfileImage2(String customerImage, String paramCustomerImage) {
         String finalImageId = Objects.nonNull(paramCustomerImage) ? paramCustomerImage : customerImage;
 

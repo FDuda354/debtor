@@ -7,13 +7,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.model.DebtStatus;
 import pl.dudios.debtor.debt.repo.DeptRepository;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
-
 import pl.dudios.debtor.notification.model.Notification;
 import pl.dudios.debtor.notification.service.NotificationService;
 import pl.dudios.debtor.transaction.controller.TransactionRequest;
@@ -23,7 +21,6 @@ import pl.dudios.debtor.transaction.repo.TransactionRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -62,7 +59,7 @@ public class TransactionService {
             debt.setStatus(DebtStatus.FINISHED);
         }
 
-        notificationService.notifyUser(debt.getCreditor().getEmail(), new Notification(debt.getDebtor().getEmail()+" włacił "+request.amount()));
+        notificationService.notifyUser(debt.getCreditor().getEmail(), new Notification(debt.getDebtor().getEmail() + " włacił " + request.amount()));
 
         transactionRepository.save(transaction);
     }

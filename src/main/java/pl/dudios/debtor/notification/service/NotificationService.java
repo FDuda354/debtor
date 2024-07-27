@@ -6,7 +6,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pl.dudios.debtor.customer.repository.CustomerRepo;
-import pl.dudios.debtor.customer.service.CustomerService;
 import pl.dudios.debtor.notification.model.Notification;
 import pl.dudios.debtor.notification.model.Status;
 import pl.dudios.debtor.notification.repo.NotificationRepository;

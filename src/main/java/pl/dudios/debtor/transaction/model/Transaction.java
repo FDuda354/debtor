@@ -9,7 +9,6 @@ import pl.dudios.debtor.debt.model.Debt;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 

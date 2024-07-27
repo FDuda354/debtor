@@ -64,8 +64,8 @@ public class DeptService {
                 .build();
 
         deptRepository.save(debt);
-        notificationService.notifyUser(request.debtorEmail(), new Notification("Masz nowy dług u "+ request.creditorEmail()));
-        notificationService.notifyUser(request.creditorEmail(), new Notification(request.debtorEmail()+ " ma u ciebie nowy dług"));
+        notificationService.notifyUser(request.debtorEmail(), new Notification("Masz nowy dług u " + request.creditorEmail()));
+        notificationService.notifyUser(request.creditorEmail(), new Notification(request.debtorEmail() + " ma u ciebie nowy dług"));
 
     }
 

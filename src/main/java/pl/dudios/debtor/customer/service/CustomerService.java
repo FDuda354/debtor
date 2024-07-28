@@ -3,8 +3,8 @@ package pl.dudios.debtor.customer.service;
 import com.google.cloud.storage.Blob;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -172,16 +172,14 @@ public class CustomerService {
     }
 
     @Transactional
-    @CacheEvict(value = "images", key = "#customerId")
     public void addProfileImage(Long customerId, MultipartFile image) {
         Customer customer = getCustomerById(customerId);
-        if (customer.getProfileImage() != null) {
-            googleStorageService.deleteFile((IMAGE_RESOURCE + "/%s").formatted(customer.getProfileImage()));
-        }
-        String newImageId = UUID.randomUUID().toString();
+        String imageId = customer.getProfileImage() == null ?
+                UUID.randomUUID().toString() :
+                customer.getProfileImage();
         try {
             googleStorageService.uploadFile(
-                    (IMAGE_RESOURCE + "/%s").formatted(newImageId),
+                    (IMAGE_RESOURCE + "/%s").formatted(imageId),
                     image
             );
         } catch (IOException e) {
@@ -189,13 +187,14 @@ public class CustomerService {
             throw new RuntimeException(e);
         }
 
-        customer.setProfileImage(newImageId);
-        customerRepo.save(customer);
+        if (customer.getProfileImage() != null) {
+            customer.setProfileImage(imageId);
+            customerRepo.save(customer);
+        }
 
     }
 
-    @Cacheable("images")
-    public Blob getProfileImage2(String customerImage, String paramCustomerImage) {
+    public Blob getProfileImage(String customerImage, String paramCustomerImage) {
         String finalImageId = Objects.nonNull(paramCustomerImage) ? paramCustomerImage : customerImage;
 
         if (Objects.nonNull(finalImageId)) {

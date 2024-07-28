@@ -3,6 +3,7 @@ package pl.dudios.debtor.customer.controller;
 import com.google.cloud.storage.Blob;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,12 +49,18 @@ public class CustomerController {
     public ResponseEntity<byte[]> serveImage(@AuthenticationPrincipal Customer customer,
                                              @RequestParam(value = "customerImage", required = false) String customerImage) {
 
-        Blob blob = customerService.getProfileImage2(customer.getProfileImage(), customerImage);
+        Blob blob = customerService.getProfileImage(customer.getProfileImage(), customerImage);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDisposition(ContentDisposition.attachment().filename(blob.getName()).build());
+        headers.setContentType(MediaType.parseMediaType(blob.getContentType()));
+        headers.setContentLength(blob.getSize());
+        if (blob.getCacheControl() != null) {
+            headers.setCacheControl(blob.getCacheControl());
+        }
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + blob.getName() + "\"")
-                .contentType(MediaType.parseMediaType(blob.getContentType()))
-                .contentLength(blob.getSize())
+                .headers(headers)
                 .body(blob.getContent());
     }
 

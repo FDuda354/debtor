@@ -24,16 +24,6 @@ spring:
     show_sql: false
 jwt:
   secret: ${SECRET}
-logging:
-  level:
-    org:
-      springframework:
-        security: DEBUG
-    org.springframework.security.messaging.web.socket: DEBUG
-    org.springframework.web.socket.server: DEBUG
-    org.springframework.messaging.simp.stomp: DEBUG
-    org.springframework.web.socket: DEBUG
-    org.springframework.security: DEBUG
 cors:
   allowed-origins: "http://localhost:4200,https://dluznik-test.dudios.pl,https://dluznik.dudios.pl"
   allowed-methods: "*"

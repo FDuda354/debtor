@@ -46,10 +46,10 @@ public class GoogleStorageService {
     public void deleteFile(String key) {
         boolean deleted = storage.delete(BlobId.of(bucketName, key));
         if (deleted) {
-            log.info("File deleted successfully");
+            log.info("File {} deleted successfully", key);
 
         } else {
-            log.warn("File could not be deleted");
+            log.warn("File {} could not be deleted", key);
         }
     }
 

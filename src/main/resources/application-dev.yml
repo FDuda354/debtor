@@ -1,0 +1,13 @@
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+    org.springframework.security.messaging.web.socket: DEBUG
+    org.springframework.web.socket.server: DEBUG
+    org.springframework.messaging.simp.stomp: DEBUG
+    org.springframework.web.socket: DEBUG
+    org.springframework.security: DEBUG
+spring:
+  jpa:
+    show_sql: true

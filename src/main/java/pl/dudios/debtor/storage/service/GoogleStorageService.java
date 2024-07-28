@@ -25,15 +25,12 @@ public class GoogleStorageService {
     public void uploadFile(String key, MultipartFile file) throws IOException {
         BlobId blobId = BlobId.of(bucketName, key);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+                .setCacheControl("public, max-age=3600")
                 .setContentType(file.getContentType())
+                .setCacheControl("public, max-age=3600")
                 .build();
-        Storage.BlobTargetOption precondition;
-        if (storage.get(bucketName, key) == null) {
-            precondition = Storage.BlobTargetOption.doesNotExist();
-        } else {
-            precondition = Storage.BlobTargetOption.generationMatch(storage.get(bucketName, key).getGeneration());
-        }
-        storage.create(blobInfo, file.getBytes(), precondition);
+
+        storage.create(blobInfo, file.getBytes());
         log.info("File uploaded successfully");
     }
 

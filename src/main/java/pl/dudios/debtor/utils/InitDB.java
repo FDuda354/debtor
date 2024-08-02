@@ -6,7 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import pl.dudios.debtor.customer.repository.CustomerRepo;
 import pl.dudios.debtor.customer.service.CustomerService;
-import pl.dudios.debtor.debt.service.DeptService;
+import pl.dudios.debtor.debt.service.DebtService;
 import pl.dudios.debtor.transaction.service.TransactionService;
 
 import java.util.Random;
@@ -20,7 +20,7 @@ public class InitDB {
     private final CustomerRepo customerDao;
     private final CustomerService customerService;
     private final PasswordEncoder passwordEncoder;
-    private final DeptService deptService;
+    private final DebtService debtService;
 
 
     Random random = new Random();
@@ -77,8 +77,8 @@ public class InitDB {
 //                    DebtRequest debtRequest = new DebtRequest(customer2.getEmail().toLowerCase(), customer1.getEmail(), BigDecimal.valueOf(random.nextInt(100_000) + 30_000), faker.commerce().productName(), time);
 //                    DebtRequest debtRequest2 = new DebtRequest(customer1.getEmail().toLowerCase(), customer2.getEmail(), BigDecimal.valueOf(random.nextInt(100_000) + 30_000), faker.commerce().productName(), time);
 //
-//                    Debt debt = deptService.addDebt(debtRequest);
-//                    Debt debt2 = deptService.addDebt(debtRequest);
+//                    Debt debt = debtService.addDebt(debtRequest);
+//                    Debt debt2 = debtService.addDebt(debtRequest);
 //
 //                    for (int j = 0; j < random.nextInt(35); j++) {
 //                        TransactionRequest request1 = new TransactionRequest(debt.getId(), BigDecimal.valueOf(random.nextInt(1000) + 10), "Spłata", null);

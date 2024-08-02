@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.model.DebtStatus;
-import pl.dudios.debtor.debt.repo.DeptRepository;
+import pl.dudios.debtor.debt.repo.DebtRepository;
+import pl.dudios.debtor.email.EmailSender;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
 import pl.dudios.debtor.notification.model.Notification;
@@ -27,11 +28,12 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class TransactionService {
     private final TransactionRepository transactionRepository;
-    private final DeptRepository deptRepository;
+    private final DebtRepository debtRepository;
     private final NotificationService notificationService;
+    private final EmailSender emailSender;
 
     public void addTransaction(TransactionRequest request) {
-        Debt debt = deptRepository.findById(request.debtId())
+        Debt debt = debtRepository.findById(request.debtId())
                 .orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + request.debtId() + " not found"));
 
         if (request.amount().compareTo(debt.getAmount()) > 0) {
@@ -57,6 +59,7 @@ public class TransactionService {
 
         if (debt.getAmount().compareTo(BigDecimal.ZERO) == 0) {
             debt.setStatus(DebtStatus.FINISHED);
+            emailSender.sendPaidDebtEmail(debt);
         }
 
         notificationService.notifyUser(debt.getCreditor().getEmail(), new Notification(debt.getDebtor().getEmail() + " włacił " + request.amount()));
@@ -76,9 +79,9 @@ public class TransactionService {
 
     @Transactional
     public void rollbackTransaction(Long transactionId) {
-        Long debtId = deptRepository.findByTransactionId(transactionId);
+        Long debtId = debtRepository.findByTransactionId(transactionId);
 
-        Debt debt = deptRepository.findById(debtId)
+        Debt debt = debtRepository.findById(debtId)
                 .orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
         if (debt.getStatus().equals(DebtStatus.ACTIVE) || debt.getStatus().equals(DebtStatus.FINISHED)) {
             Transaction transaction = transactionRepository.findById(transactionId)

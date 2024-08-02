@@ -10,9 +10,10 @@ import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.model.DebtStatus;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Repository
-public interface DeptRepository extends JpaRepository<Debt, Long> {
+public interface DebtRepository extends JpaRepository<Debt, Long> {
 
     Page<Debt> findAllByDebtorAndStatusIs(Customer debtor, DebtStatus status, Pageable pageable);
 
@@ -55,4 +56,7 @@ public interface DeptRepository extends JpaRepository<Debt, Long> {
             ") AS combined_sums",
             nativeQuery = true)
     BigDecimal getFriendBalance(Long customerId, Long friendId);
+
+    @Query(value = "SELECT * FROM debts WHERE repayment_date IS NOT NULL AND repayment_date < CURRENT_DATE + INTERVAL '7 days' AND status = 'ACTIVE'", nativeQuery = true)
+    List<Debt> findAllDebtToRemind();
 }

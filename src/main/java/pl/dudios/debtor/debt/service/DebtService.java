@@ -14,7 +14,8 @@ import pl.dudios.debtor.debt.DebtMapper;
 import pl.dudios.debtor.debt.controller.DebtRequest;
 import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.model.DebtDTO;
-import pl.dudios.debtor.debt.repo.DeptRepository;
+import pl.dudios.debtor.debt.repo.DebtRepository;
+import pl.dudios.debtor.email.EmailSender;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
 import pl.dudios.debtor.notification.model.Notification;
@@ -31,14 +32,16 @@ import static pl.dudios.debtor.debt.model.DebtStatus.CANCELLED;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DeptService {
+public class DebtService {
 
-    private final DeptRepository deptRepository;
+    private final DebtRepository debtRepository;
     private final CustomerRepo customerRepo;
     private final NotificationService notificationService;
+    private final EmailSender emailSender;
+
 
     public Debt getDebtById(Long debtId) {
-        return deptRepository.findById(debtId)
+        return debtRepository.findById(debtId)
                 .orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
     }
 
@@ -63,24 +66,26 @@ public class DeptService {
                 .status(ACTIVE)
                 .build();
 
-        deptRepository.save(debt);
+        debtRepository.save(debt);
+
         notificationService.notifyUser(request.debtorEmail(), new Notification("Masz nowy dług u " + request.creditorEmail()));
-        notificationService.notifyUser(request.creditorEmail(), new Notification(request.debtorEmail() + " ma u ciebie nowy dług"));
+        emailSender.sendNewDebtEmail(debt);
 
     }
 
     @Transactional
     public void cancelDebt(Long debtId) {
-        Debt debt = deptRepository.findById(debtId).orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
+        Debt debt = debtRepository.findById(debtId).orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
         if (debt.getStatus().equals(ACTIVE)) {
             debt.setStatus(CANCELLED);
             notificationService.notifyUser(debt.getDebtor().getEmail(), new Notification("Anulowano twój dług u " + debt.getCreditor().getEmail()));
+            emailSender.sendCancelDebtEmail(debt);
         }
     }
 
     @Transactional
     public void reactiveDebt(Long debtId) {
-        Debt debt = deptRepository.findById(debtId).orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
+        Debt debt = debtRepository.findById(debtId).orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
         debt.setStatus(ACTIVE);
         notificationService.notifyUser(debt.getDebtor().getEmail(), new Notification("Anulowano twój dług u " + debt.getCreditor().getEmail() + " został reaktywowany."));
 
@@ -90,7 +95,7 @@ public class DeptService {
         Pageable pageable = PageRequest.of(page, size);
         Customer debtor = customerRepo.findById(debtorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with Id: " + debtorId + " not found"));
-        Page<Debt> debts = onlyActive ? deptRepository.findAllByDebtorAndStatusIs(debtor, ACTIVE, pageable) : deptRepository.findAllByDebtor(debtor, pageable);
+        Page<Debt> debts = onlyActive ? debtRepository.findAllByDebtorAndStatusIs(debtor, ACTIVE, pageable) : debtRepository.findAllByDebtor(debtor, pageable);
         List<DebtDTO> debtDTOs = debts.getContent()
                 .stream()
                 .map(d -> DebtMapper.mapToDebtDTO(d, false))
@@ -103,7 +108,7 @@ public class DeptService {
         Pageable pageable = PageRequest.of(page, size);
         Customer creditor = customerRepo.findById(creditorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with Id: " + creditorId + " not found"));
-        Page<Debt> debts = onlyActive ? deptRepository.findAllByCreditorAndStatusIs(creditor, ACTIVE, pageable) : deptRepository.findAllByCreditor(creditor, pageable);
+        Page<Debt> debts = onlyActive ? debtRepository.findAllByCreditorAndStatusIs(creditor, ACTIVE, pageable) : debtRepository.findAllByCreditor(creditor, pageable);
         List<DebtDTO> debtDTOs = debts.getContent()
                 .stream()
                 .map(d -> DebtMapper.mapToDebtDTO(d, true))
@@ -113,23 +118,24 @@ public class DeptService {
     }
 
     public BigDecimal getDebtAmountSum(Long debtorId) {
-        return deptRepository.getDebtAmountSum(debtorId);
+        return debtRepository.getDebtAmountSum(debtorId);
     }
 
     public BigDecimal getCreditorAmountSum(Long creditorId) {
-        return deptRepository.getCreditorAmountSum(creditorId);
+        return debtRepository.getCreditorAmountSum(creditorId);
     }
 
     public Long getDebtCount(Long debtorId) {
-        return deptRepository.countByDebtorIdAndStatusIs(debtorId, ACTIVE);
+        return debtRepository.countByDebtorIdAndStatusIs(debtorId, ACTIVE);
     }
 
     public Long getCreditorCount(Long creditorId) {
-        return deptRepository.countByCreditorIdAndStatusIs(creditorId, ACTIVE);
+        return debtRepository.countByCreditorIdAndStatusIs(creditorId, ACTIVE);
     }
 
     public BigDecimal getFriendBalance(Long id, Long friendId) {
-        BigDecimal friendBalance = deptRepository.getFriendBalance(id, friendId);
+        BigDecimal friendBalance = debtRepository.getFriendBalance(id, friendId);
         return friendBalance == null ? BigDecimal.ZERO : friendBalance;
     }
+
 }

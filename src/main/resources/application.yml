@@ -1,5 +1,4 @@
 server:
-  port: 8080
   error:
     include-message: always
 
@@ -22,6 +21,20 @@ spring:
       hibernate:
         format_sql: true
     show_sql: false
+  mail:
+    host: ssl0.ovh.net
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          port: 587
+          starttls:
+            enable: true
+            required: true
+        transport:
+          protocol: smtp
+    username: ${MAIL_USER}
 jwt:
   secret: ${SECRET}
 cors:
@@ -30,6 +43,4 @@ cors:
   allowed-headers: "*"
   exposed-headers: "*"
 gcp:
-  credentials:
-    location: classpath:dluznik-90dc57008fa3.json
   project-id: ${PROJECT_ID}

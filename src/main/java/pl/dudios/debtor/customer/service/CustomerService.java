@@ -185,7 +185,7 @@ public class CustomerService {
             throw new RuntimeException(e);
         }
 
-        if (customer.getProfileImage() != null) {
+        if (customer.getProfileImage() == null) {
             customer.setProfileImage(imageId);
             customerRepo.save(customer);
         }

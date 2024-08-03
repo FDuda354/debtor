@@ -2,34 +2,16 @@ package pl.dudios.debtor.customer.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import pl.dudios.debtor.customer.CustomerMapper;
-import pl.dudios.debtor.customer.controller.CustomerRequest;
-import pl.dudios.debtor.customer.model.Customer;
-import pl.dudios.debtor.customer.model.CustomerDTO;
 import pl.dudios.debtor.customer.repository.CustomerDao;
-import pl.dudios.debtor.exception.DuplicateResourceException;
-import pl.dudios.debtor.exception.RequestValidationException;
-import pl.dudios.debtor.exception.ResourceNotFoundException;
-
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerServiceTest {

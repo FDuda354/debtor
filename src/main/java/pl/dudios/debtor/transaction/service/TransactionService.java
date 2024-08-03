@@ -7,14 +7,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.model.DebtStatus;
-import pl.dudios.debtor.debt.repo.DeptRepository;
+import pl.dudios.debtor.debt.repo.DebtRepository;
+import pl.dudios.debtor.email.EmailSender;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
-import pl.dudios.debtor.files.model.File;
-import pl.dudios.debtor.files.service.FileService;
+import pl.dudios.debtor.notification.model.Notification;
+import pl.dudios.debtor.notification.service.NotificationService;
 import pl.dudios.debtor.transaction.controller.TransactionRequest;
 import pl.dudios.debtor.transaction.model.Transaction;
 import pl.dudios.debtor.transaction.repo.TransactionRepository;
@@ -22,18 +22,18 @@ import pl.dudios.debtor.transaction.repo.TransactionRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
     private final TransactionRepository transactionRepository;
-    private final DeptRepository deptRepository;
-    private final FileService fileService;
+    private final DebtRepository debtRepository;
+    private final NotificationService notificationService;
+    private final EmailSender emailSender;
 
     public void addTransaction(TransactionRequest request) {
-        Debt debt = deptRepository.findById(request.debtId())
+        Debt debt = debtRepository.findById(request.debtId())
                 .orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + request.debtId() + " not found"));
 
         if (request.amount().compareTo(debt.getAmount()) > 0) {
@@ -52,7 +52,6 @@ public class TransactionService {
                 .balanceAfterTransaction(debt.getAmount().subtract(request.amount()))
                 .description(request.description())
                 .paymentDate(LocalDateTime.now())
-                .files(request.files())
                 .build();
 
         debt.getTransactions().add(transaction);
@@ -60,32 +59,12 @@ public class TransactionService {
 
         if (debt.getAmount().compareTo(BigDecimal.ZERO) == 0) {
             debt.setStatus(DebtStatus.FINISHED);
+            emailSender.sendPaidDebtEmail(debt);
         }
+
+        notificationService.notifyUser(debt.getCreditor().getEmail(), new Notification(debt.getDebtor().getEmail() + " włacił " + request.amount()));
 
         transactionRepository.save(transaction);
-    }
-
-    private boolean debtIsPaid(Debt debt) {
-        BigDecimal transactionsAmount = debt.getTransactions().stream()
-                .map(Transaction::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return transactionsAmount.compareTo(debt.getAmount()) >= 0;
-    }
-
-    public void addTransactionFiles(Long transactionId, List<MultipartFile> files) {
-        List<File> filesToSave = new ArrayList<>();
-        for (MultipartFile file : files) {
-            filesToSave.add(fileService.uploadFile(file));
-        }
-        Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Transaction with id: " + transactionId + " not found"));
-
-        if (transaction.getFiles() == null) {
-            transaction.setFiles(new ArrayList<>());
-        }
-        transaction.getFiles().addAll(filesToSave);
-
     }
 
     public Page<Transaction> getTransactionsByDebtId(Long debtId, int page, int size) {
@@ -100,9 +79,9 @@ public class TransactionService {
 
     @Transactional
     public void rollbackTransaction(Long transactionId) {
-        Long debtId = deptRepository.findByTransactionId(transactionId);
+        Long debtId = debtRepository.findByTransactionId(transactionId);
 
-        Debt debt = deptRepository.findById(debtId)
+        Debt debt = debtRepository.findById(debtId)
                 .orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + debtId + " not found"));
         if (debt.getStatus().equals(DebtStatus.ACTIVE) || debt.getStatus().equals(DebtStatus.FINISHED)) {
             Transaction transaction = transactionRepository.findById(transactionId)

@@ -1,5 +1,6 @@
 package pl.dudios.debtor.customer.service;
 
+import com.google.cloud.storage.Blob;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -9,42 +10,59 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import pl.dudios.debtor.customer.CustomerMapper;
 import pl.dudios.debtor.customer.controller.CustomerRequest;
-import pl.dudios.debtor.customer.images.model.Image;
-import pl.dudios.debtor.customer.images.service.ImageService;
+import pl.dudios.debtor.customer.friends.model.FriendShipStatus;
+import pl.dudios.debtor.customer.friends.model.Friendship;
+import pl.dudios.debtor.customer.friends.repository.FriendshipRepo;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.customer.model.CustomerDTO;
 import pl.dudios.debtor.customer.model.Role;
-import pl.dudios.debtor.customer.repository.CustomerDao;
+import pl.dudios.debtor.customer.repository.CustomerRepo;
 import pl.dudios.debtor.exception.DuplicateResourceException;
 import pl.dudios.debtor.exception.RequestValidationException;
 import pl.dudios.debtor.exception.ResourceNotFoundException;
-import pl.dudios.debtor.friends.model.FriendShipStatus;
-import pl.dudios.debtor.friends.model.Friendship;
-import pl.dudios.debtor.friends.repository.FriendshipRepo;
+import pl.dudios.debtor.notification.model.Notification;
+import pl.dudios.debtor.notification.service.NotificationService;
+import pl.dudios.debtor.storage.service.GoogleStorageService;
+import pl.dudios.debtor.utils.mappers.CustomerMapper;
+
+import java.io.IOException;
+import java.util.Objects;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomerService {
 
-    private final CustomerDao customerDao;
-    private final ImageService imageService;
+    private static final String IMAGE_RESOURCE = "profile-images";
+    private final CustomerRepo customerRepo;
     private final PasswordEncoder passwordEncoder;
     private final FriendshipRepo friendshipRepo;
+    private final NotificationService notificationService;
+    private final GoogleStorageService googleStorageService;
 
     public Customer getCustomerById(final Long id) {
-        return customerDao.getCustomerById(id)
+        return customerRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
+    }
+
+    public Customer getCustomerByEmail(final String email) {
+        return customerRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with email: " + email + " not found"));
+    }
+
+    public CustomerDTO getCustomerDTOById(final Long id) {
+        return customerRepo.findById(id).map(CustomerMapper::mapToCustomerDTO)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
     }
 
     public Customer addCustomer(CustomerRequest request) {
 
-        if (customerDao.existsByEmail(request.email().toLowerCase())) {
+        if (customerRepo.existsByEmail(request.email().toLowerCase())) {
             throw new DuplicateResourceException("Email already taken");
         }
-        return customerDao.insertCustomer(Customer.builder()
+        return customerRepo.save(Customer.builder()
                 .firstName(request.firstName())
                 .surname(request.surname())
                 .email(request.email().toLowerCase())
@@ -58,11 +76,11 @@ public class CustomerService {
     }
 
     public void updateCustomer(Long id, CustomerRequest request) {
-        Customer oldCustomer = customerDao.getCustomerById(id)
+        Customer oldCustomer = customerRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
         validateRequest(request, oldCustomer);
 
-        customerDao.updateCustomer(oldCustomer);
+        customerRepo.save(oldCustomer);
     }
 
     private void validateRequest(CustomerRequest request, Customer oldCustomer) {
@@ -70,7 +88,7 @@ public class CustomerService {
         boolean changed = false;
 
         if (request.email() != null && !request.email().isBlank() && !request.email().equalsIgnoreCase(oldCustomer.getEmail())) {
-            if (customerDao.existsByEmail(request.email().toLowerCase()) && !request.email().equalsIgnoreCase(oldCustomer.getEmail())) {
+            if (customerRepo.existsByEmail(request.email().toLowerCase()) && !request.email().equalsIgnoreCase(oldCustomer.getEmail())) {
                 throw new DuplicateResourceException("Email already taken");
             }
             oldCustomer.setEmail(request.email().trim().toLowerCase());
@@ -97,19 +115,12 @@ public class CustomerService {
             throw new RequestValidationException("No changes provided");
     }
 
-    public void addProfileImage(Long id, MultipartFile profileImage) {
-        Customer customer = customerDao.getCustomerById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + id + " not found"));
-        Image image = imageService.uploadImage(profileImage);
-        customer.setProfileImage(image.getFileName());
-        customerDao.updateCustomer(customer);
-    }
 
     @Transactional
     public Friendship addFriend(Long customerId, String email) {
-        Customer customer = customerDao.getCustomerById(customerId)
+        Customer customer = customerRepo.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id: " + customerId + " not found"));
-        Customer newFriend = customerDao.getCustomerByEmail(email)
+        Customer newFriend = customerRepo.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with email: " + email + " not found"));
 
         if (cantBeFriends(customer, newFriend)) {
@@ -122,6 +133,7 @@ public class CustomerService {
                 .status(FriendShipStatus.ACCEPTED) //TODO Change as REQUESTED
                 .build();
 
+        notificationService.notifyUser(email, new Notification(customer.getEmail() + " dodał cię do znajomych"));
         return friendshipRepo.save(friendship);
     }
 
@@ -136,10 +148,15 @@ public class CustomerService {
             return true;
         }
 
+        if (friendshipRepo.countFriendsByCustomerId(customer.getId()) > 400) {
+            log.error("Friends list overload");
+            return true;
+        }
+
         return false;
     }
 
-    public Page<CustomerDTO> getAllFriends(Long customerId, int page, int size) {
+    public Page<CustomerDTO> getFriends(Long customerId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Customer> friendsByCustomerId = friendshipRepo.findFriendsByCustomerId(customerId, pageable);
@@ -150,5 +167,39 @@ public class CustomerService {
 
         Friendship friendship = friendshipRepo.findByCustomerIdAndFriendId(customerId, friendId).orElseThrow(() -> new ResourceNotFoundException("Friendship with customerId: " + customerId + " and " + friendId + " not found"));
         friendshipRepo.deleteById(friendship.getId());
+    }
+
+    @Transactional
+    public void addProfileImage(Long customerId, MultipartFile image) {
+        Customer customer = getCustomerById(customerId);
+        String imageId = customer.getProfileImage() == null ?
+                UUID.randomUUID().toString() :
+                customer.getProfileImage();
+        try {
+            googleStorageService.uploadFile(
+                    (IMAGE_RESOURCE + "/%s").formatted(imageId),
+                    image
+            );
+        } catch (IOException e) {
+            log.error("Error while uploading profile image", e);
+            throw new RuntimeException(e);
+        }
+
+        if (customer.getProfileImage() != null) {
+            customer.setProfileImage(imageId);
+            customerRepo.save(customer);
+        }
+
+    }
+
+    public Blob getProfileImage(String customerImage, String paramCustomerImage) {
+        String finalImageId = Objects.nonNull(paramCustomerImage) ? paramCustomerImage : customerImage;
+
+        if (Objects.nonNull(finalImageId)) {
+            return googleStorageService.downloadFile((IMAGE_RESOURCE + "/%s").formatted(finalImageId));
+        } else {
+            log.error("no image name provided");
+            throw new ResourceNotFoundException("no image name provided");
+        }
     }
 }

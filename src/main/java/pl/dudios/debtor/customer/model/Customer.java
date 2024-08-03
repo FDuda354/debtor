@@ -1,6 +1,7 @@
 package pl.dudios.debtor.customer.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -76,6 +77,7 @@ public class Customer implements UserDetails {
             joinColumns = @JoinColumn(name = "customer_id"),
             inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
+    @JsonIgnore
     private List<Customer> friends;
 
     @Override

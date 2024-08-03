@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.dudios.debtor.customer.model.Customer;
 import pl.dudios.debtor.debt.model.Debt;
 import pl.dudios.debtor.debt.model.DebtDTO;
-import pl.dudios.debtor.debt.service.DeptService;
+import pl.dudios.debtor.debt.service.DebtService;
 import pl.dudios.debtor.exception.UnauthorizedAccessException;
 
 import java.math.BigDecimal;
@@ -20,12 +20,12 @@ import java.math.BigDecimal;
 @RequestMapping("/api/debt")
 public class DebtController {
 
-    private final DeptService deptService;
+    private final DebtService debtService;
 
     @GetMapping
     public ResponseEntity<Debt> getDebtById(@RequestParam(value = "debtId") Long debtId,
                                             @AuthenticationPrincipal Customer customer) {
-        Debt debt = deptService.getDebtById(debtId);
+        Debt debt = debtService.getDebtById(debtId);
         if (debt.getCreditor().getId().equals(customer.getId()) || debt.getDebtor().getId().equals(customer.getId())) {
             return ResponseEntity.ok(debt);
         } else {
@@ -40,7 +40,7 @@ public class DebtController {
                                                             @RequestParam(value = "onlyActive") boolean onlyActive,
                                                             @AuthenticationPrincipal Customer customer) {
 
-        return ResponseEntity.ok(deptService.getDebtsByDebtorId(customer.getId(), page, size, onlyActive));
+        return ResponseEntity.ok(debtService.getDebtsByDebtorId(customer.getId(), page, size, onlyActive));
     }
 
     @GetMapping("/creditors")
@@ -49,50 +49,50 @@ public class DebtController {
                                                               @RequestParam(value = "onlyActive") boolean onlyActive,
                                                               @AuthenticationPrincipal Customer customer) {
 
-        return ResponseEntity.ok(deptService.getDebtsByCreditorId(customer.getId(), page, size, onlyActive));
+        return ResponseEntity.ok(debtService.getDebtsByCreditorId(customer.getId(), page, size, onlyActive));
     }
 
     @GetMapping("/summary/debt")
     public ResponseEntity<BigDecimal> getDebtAmountSum(@AuthenticationPrincipal Customer customer) {
 
-        return ResponseEntity.ok(deptService.getDebtAmountSum(customer.getId()));
+        return ResponseEntity.ok(debtService.getDebtAmountSum(customer.getId()));
     }
 
     @GetMapping("/summary/credit")
     public ResponseEntity<BigDecimal> getCreditorAmountSum(@AuthenticationPrincipal Customer customer) {
 
-        return ResponseEntity.ok(deptService.getCreditorAmountSum(customer.getId()));
+        return ResponseEntity.ok(debtService.getCreditorAmountSum(customer.getId()));
     }
 
     @GetMapping("/summary/debt/count")
     public ResponseEntity<Long> getDebtCount(@AuthenticationPrincipal Customer customer) {
 
-        return ResponseEntity.ok(deptService.getDebtCount(customer.getId()));
+        return ResponseEntity.ok(debtService.getDebtCount(customer.getId()));
     }
 
     @GetMapping("/summary/credit/count")
     public ResponseEntity<Long> getCreditorCount(@AuthenticationPrincipal Customer customer) {
 
-        return ResponseEntity.ok(deptService.getCreditorCount(customer.getId()));
+        return ResponseEntity.ok(debtService.getCreditorCount(customer.getId()));
     }
 
     @PostMapping
     public ResponseEntity<Void> addDebt(@RequestBody DebtRequest request) {
-        deptService.addDebt(request);
+        debtService.addDebt(request);
 
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/cancel")
     public ResponseEntity<Void> cancelDebt(@RequestParam Long debtId) {
-        deptService.cancelDebt(debtId);
+        debtService.cancelDebt(debtId);
 
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/reactive")
     public ResponseEntity<Void> reactiveDebt(@RequestParam Long debtId) {
-        deptService.reactiveDebt(debtId);
+        debtService.reactiveDebt(debtId);
 
         return ResponseEntity.noContent().build();
     }
@@ -101,6 +101,6 @@ public class DebtController {
     public ResponseEntity<BigDecimal> getFriendBalance(@AuthenticationPrincipal Customer customer,
                                                        @RequestParam("friendId") Long friendId) {
 
-        return ResponseEntity.ok(deptService.getFriendBalance(customer.getId(), friendId));
+        return ResponseEntity.ok(debtService.getFriendBalance(customer.getId(), friendId));
     }
 }

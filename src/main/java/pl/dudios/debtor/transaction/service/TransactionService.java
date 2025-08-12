@@ -36,6 +36,11 @@ public class TransactionService {
         Debt debt = debtRepository.findById(request.debtId())
                 .orElseThrow(() -> new ResourceNotFoundException("Debt with id: " + request.debtId() + " not found"));
 
+        if (request.amount().compareTo(BigDecimal.ZERO) <= 0) {
+            log.error("Transaction amount must be greater than zero");
+            throw new RequestValidationException("Transaction amount must be greater than zero");
+        }
+
         if (request.amount().compareTo(debt.getAmount()) > 0) {
             log.error("Transaction amount is greater than debt amount");
             throw new RequestValidationException("Transaction amount is greater than debt amount");
